@@ -5,235 +5,214 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Idle Quest RPG</title>
 <style>
-/* ==================== RESET & BASE ==================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:        #080c18;
-  --bg2:       #0f1628;
-  --card:      #141c30;
-  --card2:     #1a2440;
-  --border:    #2a3550;
-  --text:      #c8d4f0;
-  --text-dim:  #6a7a9a;
-  --gold:      #f5c842;
-  --gold2:     #e0a800;
-  --gem:       #a855f7;
-  --gem2:      #7c3aed;
-  --hp:        #ef4444;
-  --hp2:       #991b1b;
-  --xp:        #22c55e;
-  --xp2:       #15803d;
-  --atk:       #f97316;
-  --def:       #3b82f6;
-  --white:     #ffffff;
-  --radius:    8px;
-  --glow-gold: 0 0 12px rgba(245,200,66,0.4);
-  --glow-gem:  0 0 12px rgba(168,85,247,0.4);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c18;--bg2:#0f1628;--card:#141c30;--card2:#1a2440;
+  --border:#2a3550;--text:#c8d4f0;--text-dim:#6a7a9a;
+  --gold:#f5c842;--gold2:#e0a800;--gem:#a855f7;--gem2:#7c3aed;
+  --hp:#ef4444;--xp:#22c55e;--atk:#f97316;--def:#3b82f6;
+  --radius:8px;--glow-gold:0 0 12px rgba(245,200,66,.4);--glow-gem:0 0 12px rgba(168,85,247,.4)
 }
-html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
-a { color: var(--gold); }
-button { cursor: pointer; border: none; outline: none; font-family: inherit; }
-::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg2); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-/* ==================== LAYOUT ==================== */
-#app { display: flex; flex-direction: column; height: 100vh; max-width: 1100px; margin: 0 auto; padding: 8px; gap: 8px; }
-#header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); flex-shrink: 0; }
-#header h1 { font-size: 18px; color: var(--gold); text-shadow: 0 0 16px rgba(245,200,66,0.5); letter-spacing: 1px; }
-#currency-bar { display: flex; gap: 14px; align-items: center; }
-.currency { display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 13px; }
-.currency.gold-c { color: var(--gold); }
-.currency.gem-c  { color: var(--gem); }
-.currency-icon { font-size: 16px; }
-#buy-gems-btn { background: linear-gradient(135deg, var(--gem2), var(--gem)); color: #fff; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; transition: opacity .2s, box-shadow .2s; box-shadow: var(--glow-gem); }
-#buy-gems-btn:hover { opacity: .85; box-shadow: 0 0 20px rgba(168,85,247,.6); }
-
-#main { display: flex; gap: 8px; flex: 1; min-height: 0; }
-#sidebar { width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
-#content { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-#tab-bar { display: flex; gap: 4px; flex-shrink: 0; }
-#tab-content { flex: 1; min-height: 0; overflow-y: auto; }
-
-/* ==================== CARDS ==================== */
-.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
-.card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin-bottom: 10px; font-weight: 700; }
-
-/* ==================== TABS ==================== */
-.tab-btn { padding: 8px 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; color: var(--text-dim); font-size: 13px; font-weight: 600; transition: all .2s; }
-.tab-btn:hover { color: var(--text); background: var(--card2); }
-.tab-btn.active { background: var(--card2); color: var(--gold); border-bottom-color: var(--card2); box-shadow: inset 0 2px 0 var(--gold); }
-.tab-pane { display: none; padding: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 0 var(--radius) var(--radius) var(--radius); height: 100%; }
-.tab-pane.active { display: block; }
-
-/* ==================== BARS ==================== */
-.bar-wrap { margin-bottom: 6px; }
-.bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 3px; }
-.bar-track { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 5px; transition: width .3s ease; }
-.bar-fill.hp-bar  { background: linear-gradient(90deg, var(--hp2), var(--hp)); }
-.bar-fill.xp-bar  { background: linear-gradient(90deg, var(--xp2), var(--xp)); }
-.bar-fill.mon-hp  { background: linear-gradient(90deg, #7f1d1d, #dc2626); }
-
-/* ==================== PLAYER SIDEBAR ==================== */
-.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px solid rgba(42,53,80,.5); }
-.stat-row:last-child { border-bottom: none; }
-.stat-name { font-size: 12px; color: var(--text-dim); }
-.stat-val  { font-size: 13px; font-weight: 700; }
-.stat-val.atk { color: var(--atk); }
-.stat-val.def { color: var(--def); }
-.stat-val.lv  { color: var(--gold); }
-
-.boost-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(168,85,247,.15); border: 1px solid var(--gem); border-radius: 20px; padding: 2px 8px; font-size: 11px; color: var(--gem); margin: 2px; }
-
-/* ==================== COMBAT TAB ==================== */
-#combat-view { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width: 600px) { #combat-view { grid-template-columns: 1fr; } }
-.monster-card { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; padding: 20px; position: relative; overflow: hidden; }
-.monster-card::before { content: ''; position: absolute; inset: 0; opacity: .05; background: radial-gradient(circle, #fff 0%, transparent 70%); }
-.monster-sprite { font-size: 72px; line-height: 1; transition: transform .1s; filter: drop-shadow(0 4px 12px rgba(0,0,0,.5)); }
-.monster-sprite.hit { animation: monHit .2s ease; }
-@keyframes monHit { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-.monster-sprite.dead { animation: monDead .4s ease forwards; }
-@keyframes monDead { to{transform:scale(0) rotate(90deg);opacity:0;} }
-.monster-name { font-size: 18px; font-weight: 700; margin: 8px 0 4px; color: var(--white); }
-.monster-level { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
-#monster-hp-bar { width: 100%; max-width: 280px; }
-
-.combat-log { font-size: 12px; height: 160px; overflow-y: auto; background: var(--bg); border-radius: 6px; padding: 8px; display: flex; flex-direction: column-reverse; }
-.log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.03); line-height: 1.5; }
-.log-entry.hit-p { color: #fbbf24; }
-.log-entry.hit-m { color: #f87171; }
-.log-entry.kill  { color: #4ade80; font-weight: 600; }
-.log-entry.lvl   { color: #c084fc; font-weight: 700; }
-.log-entry.idle  { color: #60a5fa; }
-
-.zone-select { display: flex; flex-wrap: wrap; gap: 6px; }
-.zone-btn { padding: 6px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text-dim); font-size: 12px; transition: all .2s; }
-.zone-btn:hover   { border-color: var(--gold); color: var(--gold); }
-.zone-btn.active  { background: rgba(245,200,66,.15); border-color: var(--gold); color: var(--gold); }
-.zone-btn.locked  { opacity: .4; cursor: not-allowed; }
-
-.action-btns { display: flex; gap: 8px; margin-top: 4px; }
-.btn { padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; transition: all .2s; }
-.btn-gold { background: linear-gradient(135deg, var(--gold2), var(--gold)); color: #1a0e00; box-shadow: var(--glow-gold); }
-.btn-gold:hover { box-shadow: 0 0 20px rgba(245,200,66,.6); transform: translateY(-1px); }
-.btn-gold:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-.btn-gem  { background: linear-gradient(135deg, var(--gem2), var(--gem)); color: #fff; box-shadow: var(--glow-gem); }
-.btn-gem:hover { box-shadow: 0 0 20px rgba(168,85,247,.6); transform: translateY(-1px); }
-.btn-danger { background: linear-gradient(135deg, #991b1b, #ef4444); color: #fff; }
-.btn-secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
-
-/* ==================== SHOP ==================== */
-.shop-section { margin-bottom: 18px; }
-.shop-section h3 { font-size: 13px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
-.item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
-.item-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; display: flex; flex-direction: column; gap: 6px; transition: border-color .2s, box-shadow .2s; }
-.item-card:hover { border-color: var(--gold); box-shadow: 0 2px 12px rgba(245,200,66,.15); }
-.item-card.equipped { border-color: var(--xp); box-shadow: 0 0 10px rgba(34,197,94,.2); }
-.item-card.gem-item { border-color: rgba(168,85,247,.3); }
-.item-card.gem-item:hover { border-color: var(--gem); box-shadow: 0 2px 12px rgba(168,85,247,.15); }
-.item-icon { font-size: 28px; text-align: center; }
-.item-name { font-size: 13px; font-weight: 700; color: var(--white); }
-.item-stats { font-size: 11px; color: var(--text-dim); }
-.item-stats span { color: var(--text); font-weight: 600; }
-.item-price { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; }
-.price-gold { color: var(--gold); }
-.price-gem  { color: var(--gem); }
-.item-btn { width: 100%; padding: 5px; border-radius: 4px; font-size: 12px; font-weight: 700; background: var(--card2); border: 1px solid var(--border); color: var(--text-dim); transition: all .2s; }
-.item-btn:hover:not(:disabled) { background: rgba(245,200,66,.15); border-color: var(--gold); color: var(--gold); }
-.item-btn.gem-btn:hover:not(:disabled) { background: rgba(168,85,247,.15); border-color: var(--gem); color: var(--gem); }
-.item-btn:disabled { opacity: .35; cursor: not-allowed; }
-.item-btn.equipped-btn { background: rgba(34,197,94,.15); border-color: var(--xp); color: var(--xp); }
-.boost-timer { font-size: 11px; color: var(--gem); }
-
-/* ==================== PRESTIGE ==================== */
-.prestige-info { text-align: center; padding: 20px; }
-.prestige-count { font-size: 48px; font-weight: 900; color: var(--gold); text-shadow: var(--glow-gold); line-height: 1; }
-.prestige-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
-.prestige-bonus { font-size: 22px; color: var(--xp); font-weight: 700; margin: 10px 0; }
-.prestige-req { margin: 14px 0; padding: 10px; background: var(--bg); border-radius: var(--radius); font-size: 13px; }
-.prestige-req .ok   { color: var(--xp); }
-.prestige-req .fail { color: var(--hp); }
-.prestige-upgrades { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
-.upgrade-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; transition: border-color .2s; }
-.upgrade-card.maxed { border-color: var(--gold); }
-.upgrade-title { font-size: 12px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
-.upgrade-desc  { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
-.upgrade-level { font-size: 11px; color: var(--gold); }
-.upgrade-cost  { font-size: 11px; color: var(--gem); margin-top: 2px; }
-
-/* ==================== STATS TAB ==================== */
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
-.stat-card-val { font-size: 24px; font-weight: 900; margin-bottom: 2px; }
-.stat-card-val.gold-v { color: var(--gold); }
-.stat-card-val.gem-v  { color: var(--gem); }
-.stat-card-val.xp-v   { color: var(--xp); }
-.stat-card-val.kill-v { color: var(--atk); }
-.stat-card-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-
-/* ==================== NOTIFICATIONS ==================== */
-#notif-container { position: fixed; top: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
-.notif { padding: 8px 14px; border-radius: var(--radius); font-size: 13px; font-weight: 600; animation: notifIn .3s ease; backdrop-filter: blur(4px); }
-@keyframes notifIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
-.notif.gold { background: rgba(245,200,66,.2); border: 1px solid var(--gold); color: var(--gold); }
-.notif.gem  { background: rgba(168,85,247,.2); border: 1px solid var(--gem);  color: var(--gem); }
-.notif.lvl  { background: rgba(196,132,252,.2); border: 1px solid #c084fc;    color: #c084fc; }
-.notif.good { background: rgba(34,197,94,.2);   border: 1px solid var(--xp);  color: var(--xp); }
-.notif.info { background: rgba(59,130,246,.2);  border: 1px solid #3b82f6;    color: #93c5fd; }
-
-/* ==================== DAMAGE FLOATS ==================== */
-.dmg-float { position: fixed; pointer-events: none; font-size: 18px; font-weight: 900; z-index: 999; animation: floatUp .8s ease forwards; text-shadow: 0 2px 4px rgba(0,0,0,.8); }
-.dmg-float.p { color: #fbbf24; }
-.dmg-float.m { color: #f87171; }
-.dmg-float.crit { color: #ff0; font-size: 24px; }
-@keyframes floatUp { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-60px)} }
-
-/* ==================== OFFLINE MODAL ==================== */
-#offline-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:2000; align-items:center; justify-content:center; }
-#offline-modal.open { display:flex; }
-.modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; max-width: 380px; width: 90%; text-align: center; }
-.modal-box h2 { font-size: 20px; color: var(--gold); margin-bottom: 12px; }
-.modal-reward { font-size: 28px; font-weight: 900; margin: 16px 0; }
-.modal-reward .r-gold { color: var(--gold); }
-.modal-reward .r-xp   { color: var(--xp); }
-
-/* ==================== IDLE SCREEN ==================== */
-#idle-indicator { position: absolute; top: 4px; right: 8px; font-size: 10px; color: var(--xp); animation: blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* ==================== MOBILE ==================== */
-@media (max-width: 700px) {
-  #app { padding: 6px; gap: 6px; }
-  #main { flex-direction: column; }
-  #sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; overflow: visible; }
-  #sidebar .card { flex: 1; min-width: 140px; }
-  .tab-btn { padding: 6px 10px; font-size: 12px; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .prestige-upgrades { grid-template-columns: 1fr; }
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#app{display:flex;flex-direction:column;height:100vh;max-width:1100px;margin:0 auto;padding:8px;gap:8px}
+#header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);flex-shrink:0}
+#header h1{font-size:18px;color:var(--gold);text-shadow:0 0 16px rgba(245,200,66,.5);letter-spacing:1px}
+#currency-bar{display:flex;gap:14px;align-items:center}
+.currency{display:flex;align-items:center;gap:5px;font-weight:600;font-size:13px}
+.currency.gold-c{color:var(--gold)}.currency.gem-c{color:var(--gem)}
+#buy-gems-btn{background:linear-gradient(135deg,var(--gem2),var(--gem));color:#fff;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;box-shadow:var(--glow-gem)}
+#main{display:flex;gap:8px;flex:1;min-height:0}
+#sidebar{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+#content{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+#tab-bar{display:flex;gap:4px;flex-shrink:0}
+#tab-content{flex:1;min-height:0;overflow-y:auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.card-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:10px;font-weight:700}
+.tab-btn{padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius) var(--radius) 0 0;color:var(--text-dim);font-size:13px;font-weight:600;transition:all .2s}
+.tab-btn.active{background:var(--card2);color:var(--gold);border-bottom-color:var(--card2);box-shadow:inset 0 2px 0 var(--gold)}
+.tab-pane{display:none;padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:0 var(--radius) var(--radius) var(--radius);height:100%}
+.tab-pane.active{display:block}
+.bar-wrap{margin-bottom:6px}
+.bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:3px}
+.bar-track{height:10px;background:var(--bg);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s ease}
+.bar-fill.hp-bar{background:linear-gradient(90deg,#991b1b,var(--hp))}
+.bar-fill.xp-bar{background:linear-gradient(90deg,#15803d,var(--xp))}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(42,53,80,.5)}
+.stat-row:last-child{border-bottom:none}
+.stat-name{font-size:12px;color:var(--text-dim)}.stat-val{font-size:13px;font-weight:700}
+.stat-val.atk{color:var(--atk)}.stat-val.def{color:var(--def)}.stat-val.lv{color:var(--gold)}
+.boost-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(168,85,247,.15);border:1px solid var(--gem);border-radius:20px;padding:2px 8px;font-size:11px;color:var(--gem);margin:2px}
+/* Combat canvas area */
+#combat-canvas-wrap{position:relative;background:var(--bg);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+#combat-canvas{width:100%;display:block;image-rendering:pixelated}
+.combat-log{font-size:12px;height:140px;overflow-y:auto;background:var(--bg);border-radius:6px;padding:8px;display:flex;flex-direction:column-reverse}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);line-height:1.5}
+.log-entry.hit-p{color:#fbbf24}.log-entry.hit-m{color:#f87171}.log-entry.kill{color:#4ade80;font-weight:600}.log-entry.lvl{color:#c084fc;font-weight:700}.log-entry.idle{color:#60a5fa}
+.zone-select{display:flex;flex-wrap:wrap;gap:6px}
+.zone-btn{padding:6px 12px;background:var(--bg);border:1px solid var(--border);border-radius:20px;color:var(--text-dim);font-size:12px;transition:all .2s}
+.zone-btn.active{background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold)}
+.zone-btn.locked{opacity:.4;cursor:not-allowed}
+.btn{padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:700;transition:all .2s}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#1a0e00;box-shadow:var(--glow-gold)}
+.btn-gold:hover{box-shadow:0 0 20px rgba(245,200,66,.6);transform:translateY(-1px)}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-gem{background:linear-gradient(135deg,var(--gem2),var(--gem));color:#fff;box-shadow:var(--glow-gem)}
+.btn-danger{background:linear-gradient(135deg,#991b1b,#ef4444);color:#fff}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border)}
+/* Shop */
+.shop-section{margin-bottom:18px}
+.shop-section h3{font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.item-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px;display:flex;flex-direction:column;gap:5px;transition:border-color .2s}
+.item-card:hover{border-color:var(--gold)}.item-card.equipped{border-color:var(--xp)}.item-card.gem-item:hover{border-color:var(--gem)}
+.item-icon{font-size:26px;text-align:center}.item-name{font-size:13px;font-weight:700;color:#fff}
+.item-stats{font-size:11px;color:var(--text-dim)}.item-stats span{color:var(--text);font-weight:600}
+.item-price{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700}
+.price-gold{color:var(--gold)}.price-gem{color:var(--gem)}
+.item-btn{width:100%;padding:5px;border-radius:4px;font-size:12px;font-weight:700;background:var(--card2);border:1px solid var(--border);color:var(--text-dim);transition:all .2s}
+.item-btn:hover:not(:disabled){background:rgba(245,200,66,.15);border-color:var(--gold);color:var(--gold)}
+.item-btn.gem-btn:hover:not(:disabled){background:rgba(168,85,247,.15);border-color:var(--gem);color:var(--gem)}
+.item-btn:disabled{opacity:.35;cursor:not-allowed}
+.item-btn.equipped-btn{background:rgba(34,197,94,.15);border-color:var(--xp);color:var(--xp)}
+/* Prestige */
+.prestige-info{text-align:center;padding:16px}
+.prestige-count{font-size:48px;font-weight:900;color:var(--gold);text-shadow:var(--glow-gold);line-height:1}
+.prestige-label{font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:2px;margin-top:4px}
+.prestige-bonus{font-size:22px;color:var(--xp);font-weight:700;margin:8px 0}
+.prestige-upgrades{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.upgrade-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px}
+.upgrade-card.maxed{border-color:var(--gold)}
+.upgrade-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:3px}
+.upgrade-desc{font-size:11px;color:var(--text-dim);margin-bottom:6px}
+.upgrade-level{font-size:11px;color:var(--gold)}.upgrade-cost{font-size:11px;color:var(--gem);margin-top:2px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.stat-card-val{font-size:24px;font-weight:900;margin-bottom:2px}
+.stat-card-val.gold-v{color:var(--gold)}.stat-card-val.gem-v{color:var(--gem)}.stat-card-val.xp-v{color:var(--xp)}.stat-card-val.kill-v{color:var(--atk)}
+.stat-card-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px}
+/* Notifications */
+#notif-container{position:fixed;top:16px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.notif{padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:600;animation:notifIn .3s ease}
+@keyframes notifIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.notif.gold{background:rgba(245,200,66,.2);border:1px solid var(--gold);color:var(--gold)}
+.notif.gem{background:rgba(168,85,247,.2);border:1px solid var(--gem);color:var(--gem)}
+.notif.lvl{background:rgba(196,132,252,.2);border:1px solid #c084fc;color:#c084fc}
+.notif.good{background:rgba(34,197,94,.2);border:1px solid var(--xp);color:var(--xp)}
+.notif.info{background:rgba(59,130,246,.2);border:1px solid #3b82f6;color:#93c5fd}
+/* Offline modal */
+#offline-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center}
+#offline-modal.open{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:380px;width:90%;text-align:center}
+.modal-box h2{font-size:20px;color:var(--gold);margin-bottom:12px}
+.modal-reward{font-size:28px;font-weight:900;margin:16px 0}
+.modal-reward .r-gold{color:var(--gold)}.modal-reward .r-xp{color:var(--xp)}
+/* Character Creator */
+#creator-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,20,.95);z-index:3000;align-items:center;justify-content:center;flex-direction:column}
+#creator-overlay.open{display:flex}
+.creator-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:640px;width:96%;max-height:96vh;overflow-y:auto}
+.creator-box h2{font-size:22px;color:var(--gold);text-align:center;margin-bottom:18px;letter-spacing:1px}
+.creator-grid{display:grid;grid-template-columns:160px 1fr;gap:20px;align-items:start}
+#preview-canvas{border-radius:var(--radius);border:1px solid var(--border);background:#0a0e1a;width:160px;height:200px}
+.creator-section{margin-bottom:14px}
+.creator-section label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:6px;font-weight:700}
+.creator-section input[type=text]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;color:var(--text);font-size:14px;font-family:inherit}
+.creator-section input[type=text]:focus{outline:none;border-color:var(--gold)}
+.class-btns{display:flex;gap:6px;flex-wrap:wrap}
+.class-btn{flex:1;min-width:60px;padding:8px 6px;background:var(--bg);border:2px solid var(--border);border-radius:var(--radius);color:var(--text-dim);font-size:12px;font-weight:700;text-align:center;transition:all .2s;cursor:pointer}
+.class-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(245,200,66,.1)}
+.class-desc{font-size:11px;color:var(--text-dim);padding:6px 8px;background:var(--bg);border-radius:4px;margin-top:6px;line-height:1.5}
+.color-swatches{display:flex;gap:6px;flex-wrap:wrap}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .2s}
+.swatch.active{border-color:#fff}
+.style-btns{display:flex;gap:6px}
+.style-btn{flex:1;padding:6px;background:var(--bg);border:2px solid var(--border);border-radius:6px;color:var(--text-dim);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.style-btn.active{border-color:var(--gem);color:var(--gem)}
+@media(max-width:700px){
+  #main{flex-direction:column}
+  #sidebar{width:100%;flex-direction:row;flex-wrap:wrap;overflow:visible}
+  #sidebar .card{flex:1;min-width:140px}
+  .creator-grid{grid-template-columns:1fr}
+  #preview-canvas{width:100%;height:140px}
+  .prestige-upgrades{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
+<!-- CHARACTER CREATOR -->
+<div id="creator-overlay">
+  <div class="creator-box">
+    <h2>⚔️ Crée ton Héros</h2>
+    <div class="creator-grid">
+      <div>
+        <canvas id="preview-canvas" width="160" height="200"></canvas>
+      </div>
+      <div>
+        <div class="creator-section">
+          <label>Nom du héros</label>
+          <input type="text" id="creator-name" maxlength="16" placeholder="Entrez un nom..." value="Hero">
+        </div>
+        <div class="creator-section">
+          <label>Classe</label>
+          <div class="class-btns">
+            <div class="class-btn active" data-class="warrior">⚔️<br>Guerrier</div>
+            <div class="class-btn" data-class="mage">🔮<br>Mage</div>
+            <div class="class-btn" data-class="archer">🏹<br>Archer</div>
+            <div class="class-btn" data-class="rogue">🗡️<br>Voleur</div>
+          </div>
+          <div class="class-desc" id="class-desc">Tank résistant. Bonus HP+30% DEF+40%.</div>
+        </div>
+        <div class="creator-section">
+          <label>Carnation</label>
+          <div class="color-swatches" id="skin-swatches"></div>
+        </div>
+        <div class="creator-section">
+          <label>Couleur des cheveux</label>
+          <div class="color-swatches" id="hair-swatches"></div>
+        </div>
+        <div class="creator-section">
+          <label>Style de coiffure</label>
+          <div class="style-btns" id="hair-styles">
+            <div class="style-btn active" data-style="0">Court</div>
+            <div class="style-btn" data-style="1">Pic</div>
+            <div class="style-btn" data-style="2">Long</div>
+            <div class="style-btn" data-style="3">Chignon</div>
+          </div>
+        </div>
+        <button class="btn btn-gold" id="creator-start" style="width:100%;margin-top:8px;padding:12px;font-size:15px">▶ Commencer l'Aventure</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OFFLINE MODAL -->
+<div id="offline-modal">
+  <div class="modal-box">
+    <h2>🌙 Bienvenue de retour !</h2>
+    <p id="offline-time-msg" style="color:var(--text-dim);font-size:13px"></p>
+    <div class="modal-reward" id="offline-reward"></div>
+    <button class="btn btn-gold" onclick="closeOfflineModal()" style="margin-top:8px">Récupérer !</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
 <div id="app">
-  <!-- HEADER -->
   <header id="header">
     <h1>⚔️ Idle Quest RPG</h1>
     <div id="currency-bar">
-      <div class="currency gold-c"><span class="currency-icon">🪙</span><span id="hdr-gold">0</span></div>
-      <div class="currency gem-c"><span class="currency-icon">💎</span><span id="hdr-gems">0</span></div>
+      <div class="currency gold-c"><span>🪙</span><span id="hdr-gold">0</span></div>
+      <div class="currency gem-c"><span>💎</span><span id="hdr-gems">0</span></div>
       <button id="buy-gems-btn">+ Gems</button>
     </div>
   </header>
-
   <div id="main">
-    <!-- SIDEBAR -->
     <aside id="sidebar">
-      <!-- Player Stats Card -->
       <div class="card">
         <div class="card-title">Personnage</div>
-        <div id="player-name" style="font-size:15px;font-weight:700;color:var(--white);margin-bottom:6px;">Hero</div>
+        <div id="player-name-display" style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">Hero</div>
         <div class="bar-wrap">
           <div class="bar-label"><span>HP</span><span id="hp-text">100/100</span></div>
           <div class="bar-track"><div class="bar-fill hp-bar" id="hp-bar" style="width:100%"></div></div>
@@ -244,25 +223,21 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
         </div>
         <div style="margin-top:8px">
           <div class="stat-row"><span class="stat-name">Niveau</span><span class="stat-val lv" id="s-level">1</span></div>
-          <div class="stat-row"><span class="stat-name">⚔️ Attaque</span><span class="stat-val atk" id="s-atk">10</span></div>
-          <div class="stat-row"><span class="stat-name">🛡️ Défense</span><span class="stat-val def" id="s-def">5</span></div>
-          <div class="stat-row"><span class="stat-name">💫 Prestige</span><span class="stat-val lv" id="s-prestige">0</span></div>
+          <div class="stat-row"><span class="stat-name">⚔️ ATK</span><span class="stat-val atk" id="s-atk">10</span></div>
+          <div class="stat-row"><span class="stat-name">🛡️ DEF</span><span class="stat-val def" id="s-def">5</span></div>
+          <div class="stat-row"><span class="stat-name">✨ Prestige</span><span class="stat-val lv" id="s-prestige">0</span></div>
         </div>
       </div>
-      <!-- Equipment Card -->
       <div class="card">
         <div class="card-title">Équipement</div>
         <div class="stat-row"><span class="stat-name">⚔️ Arme</span><span class="stat-val" id="eq-weapon" style="color:var(--text)">Aucune</span></div>
         <div class="stat-row"><span class="stat-name">🛡️ Armure</span><span class="stat-val" id="eq-armor" style="color:var(--text)">Aucune</span></div>
       </div>
-      <!-- Active Boosts -->
       <div class="card">
         <div class="card-title">Boosts actifs</div>
         <div id="boost-list" style="font-size:12px;color:var(--text-dim)">Aucun boost actif.</div>
       </div>
     </aside>
-
-    <!-- CONTENT -->
     <div id="content">
       <div id="tab-bar">
         <button class="tab-btn active" data-tab="combat">⚔️ Combat</button>
@@ -271,62 +246,38 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
         <button class="tab-btn" data-tab="stats">📊 Stats</button>
       </div>
       <div id="tab-content">
-
-        <!-- COMBAT TAB -->
         <div id="tab-combat" class="tab-pane active">
-          <div id="combat-view">
-            <div class="card monster-card">
-              <span id="monster-sprite" class="monster-sprite">🐛</span>
-              <div id="monster-name" class="monster-name">Slime</div>
-              <div id="monster-level" class="monster-level">Niveau 1</div>
-              <div id="monster-hp-bar" class="bar-wrap" style="width:100%;max-width:280px">
-                <div class="bar-label"><span>HP Monstre</span><span id="mon-hp-text">10/10</span></div>
-                <div class="bar-track"><div class="bar-fill mon-hp" id="mon-hp-bar" style="width:100%"></div></div>
-              </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div id="combat-canvas-wrap">
+              <canvas id="combat-canvas" width="480" height="220"></canvas>
             </div>
-
-            <div class="card">
-              <div class="card-title">Zone de combat</div>
-              <div class="zone-select" id="zone-select"></div>
-              <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">Zone actuelle : <span id="zone-label" style="color:var(--gold)">Zone 1</span></div>
-              <div style="margin-top:8px" id="speed-info"></div>
-            </div>
-
-            <div class="card" style="grid-column:1/-1">
-              <div class="card-title" style="display:flex;justify-content:space-between">
-                Journal de combat
-                <span id="idle-indicator">● IDLE</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="card">
+                <div class="card-title">Zone de combat</div>
+                <div class="zone-select" id="zone-select"></div>
+                <div style="margin-top:8px;font-size:12px;color:var(--text-dim)">Zone : <span id="zone-label" style="color:var(--gold)">Zone 1</span></div>
+                <div id="speed-info" style="margin-top:4px;font-size:12px;color:var(--text-dim)"></div>
               </div>
-              <div class="combat-log" id="combat-log"></div>
+              <div class="card">
+                <div class="card-title">Journal de combat</div>
+                <div class="combat-log" id="combat-log"></div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- SHOP TAB -->
         <div id="tab-shop" class="tab-pane">
-          <div class="shop-section">
-            <h3>🪙 Armes (Gold)</h3>
-            <div class="item-grid" id="weapon-shop"></div>
-          </div>
-          <div class="shop-section">
-            <h3>🛡️ Armures (Gold)</h3>
-            <div class="item-grid" id="armor-shop"></div>
-          </div>
-          <div class="shop-section">
-            <h3>💎 Boosts Premium (Gems)</h3>
-            <div class="item-grid" id="boost-shop"></div>
-          </div>
+          <div class="shop-section"><h3>🪙 Armes (Gold)</h3><div class="item-grid" id="weapon-shop"></div></div>
+          <div class="shop-section"><h3>🛡️ Armures (Gold)</h3><div class="item-grid" id="armor-shop"></div></div>
+          <div class="shop-section"><h3>💎 Boosts Premium (Gems)</h3><div class="item-grid" id="boost-shop"></div></div>
         </div>
-
-        <!-- PRESTIGE TAB -->
         <div id="tab-prestige" class="tab-pane">
           <div class="prestige-info">
             <div class="prestige-count" id="p-count">0</div>
             <div class="prestige-label">Prestiges effectués</div>
             <div class="prestige-bonus" id="p-bonus">+0% bonus global</div>
           </div>
-          <div class="prestige-req card">
-            <div class="card-title">Conditions de prestige</div>
+          <div class="card">
+            <div class="card-title">Conditions</div>
             <div id="p-reqs"></div>
             <div style="margin-top:12px;text-align:center">
               <button id="prestige-btn" class="btn btn-gold" style="font-size:14px;padding:10px 24px">✨ Prestige</button>
@@ -337,832 +288,1146 @@ button { cursor: pointer; border: none; outline: none; font-family: inherit; }
             <div class="prestige-upgrades" id="prestige-upgrades"></div>
           </div>
         </div>
-
-        <!-- STATS TAB -->
         <div id="tab-stats" class="tab-pane">
           <div class="stats-grid" id="stats-grid"></div>
           <div style="margin-top:14px" class="card">
             <div class="card-title">Actions rapides</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
               <button class="btn btn-secondary" id="save-btn">💾 Sauvegarder</button>
-              <button class="btn btn-danger" id="reset-btn" style="font-size:12px;padding:7px 12px">🗑️ Reset (HARD)</button>
+              <button class="btn" style="background:rgba(168,85,247,.2);border:1px solid var(--gem);color:var(--gem);font-size:12px;padding:7px 12px" id="change-char-btn">👤 Changer de perso</button>
+              <button class="btn btn-danger" id="reset-btn" style="font-size:12px;padding:7px 12px">🗑️ Reset</button>
             </div>
           </div>
         </div>
-
-      </div><!-- end tab-content -->
-    </div><!-- end content -->
-  </div><!-- end main -->
-</div><!-- end app -->
-
-<!-- Notifications & Floating Damage -->
-<div id="notif-container"></div>
-
-<!-- Offline Reward Modal -->
-<div id="offline-modal">
-  <div class="modal-box">
-    <h2>🌙 Bienvenue de retour !</h2>
-    <p id="offline-time-msg" style="color:var(--text-dim);font-size:13px"></p>
-    <div class="modal-reward" id="offline-reward"></div>
-    <button class="btn btn-gold" onclick="closeOfflineModal()" style="margin-top:8px">Récupérer !</button>
+      </div>
+    </div>
   </div>
 </div>
+<div id="notif-container"></div>
 
 <script>
-/* =================================================================
-   IDLE QUEST RPG — Main Game Script
-   Architecture: module pattern with single G (Game) state object
-================================================================= */
+// ══════════════════════════════════════════════
+//  AUDIO ENGINE  (Web Audio API, no files)
+// ══════════════════════════════════════════════
+const SFX = (() => {
+  let AC = null;
+  function init() { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); }
+  function resume() { if (AC && AC.state === 'suspended') AC.resume(); }
 
-// ─── DATA DEFINITIONS ───────────────────────────────────────────
+  function osc(freq, type, dur, vol, freqEnd) {
+    if (!AC) return;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    o.type = type; o.frequency.setValueAtTime(freq, AC.currentTime);
+    if (freqEnd) o.frequency.exponentialRampToValueAtTime(freqEnd, AC.currentTime + dur);
+    g.gain.setValueAtTime(vol, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+    o.start(); o.stop(AC.currentTime + dur);
+  }
 
-const ZONES = [
-  { id:1, name:"Forêt des Débutants", minLv:1,  unlockLv:1,  color:"#22c55e" },
-  { id:2, name:"Collines Orcs",       minLv:5,  unlockLv:5,  color:"#f97316" },
-  { id:3, name:"Cryptes Maudites",    minLv:15, unlockLv:15, color:"#a855f7" },
-  { id:4, name:"Montagne des Dragons",minLv:30, unlockLv:30, color:"#ef4444" },
-  { id:5, name:"Abîme Infernal",      minLv:50, unlockLv:50, color:"#f43f5e" },
-];
+  function noise(dur, vol) {
+    if (!AC) return;
+    const buf = AC.createBuffer(1, AC.sampleRate * dur, AC.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = AC.createBufferSource(), g = AC.createGain();
+    src.buffer = buf; src.connect(g); g.connect(AC.destination);
+    g.gain.setValueAtTime(vol, AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
+    src.start(); src.stop(AC.currentTime + dur);
+  }
 
-const MONSTERS = {
-  1: [
-    { name:"Slime",        emoji:"🟢", hp:20,   atk:3,  def:0, xp:8,  gold:4  },
-    { name:"Gobelin",      emoji:"👺", hp:30,   atk:5,  def:1, xp:12, gold:6  },
-    { name:"Rat Géant",    emoji:"🐀", hp:25,   atk:4,  def:0, xp:10, gold:5  },
-  ],
-  2: [
-    { name:"Loup Féroce",  emoji:"🐺", hp:80,   atk:12, def:3, xp:30, gold:18 },
-    { name:"Squelette",    emoji:"💀", hp:70,   atk:10, def:5, xp:28, gold:15 },
-    { name:"Orc",          emoji:"👹", hp:100,  atk:15, def:4, xp:40, gold:22 },
-  ],
-  3: [
-    { name:"Troll",        emoji:"🧌", hp:250,  atk:25, def:8,  xp:80,  gold:50  },
-    { name:"Elfe Noir",    emoji:"🧝", hp:200,  atk:30, def:6,  xp:90,  gold:60  },
-    { name:"Vampire",      emoji:"🧛", hp:300,  atk:28, def:10, xp:100, gold:70  },
-  ],
-  4: [
-    { name:"Dragonnet",    emoji:"🐉", hp:800,  atk:60, def:20, xp:250,  gold:180  },
-    { name:"Géant de Glace",emoji:"🗿",hp:1000, atk:50, def:30, xp:300,  gold:200  },
-    { name:"Démon",        emoji:"😈", hp:900,  atk:70, def:15, xp:280,  gold:190  },
-  ],
-  5: [
-    { name:"Dragon Ancien",emoji:"🔥", hp:5000, atk:150, def:60, xp:1000, gold:800  },
-    { name:"Liche",        emoji:"☠️", hp:4000, atk:180, def:50, xp:1100, gold:900  },
-    { name:"Seigneur Démon",emoji:"👿",hp:6000, atk:200, def:70, xp:1500, gold:1200 },
-  ],
-};
-
-const WEAPONS = [
-  { id:"w0", name:"Épée en Bois",   emoji:"🪵", atk:5,  def:0,  price:0,      tier:0 },
-  { id:"w1", name:"Épée de Fer",    emoji:"⚔️", atk:15, def:0,  price:100,    tier:1 },
-  { id:"w2", name:"Épée d'Acier",   emoji:"🗡️", atk:35, def:0,  price:500,    tier:2 },
-  { id:"w3", name:"Épée de Mithril",emoji:"✨", atk:80, def:5,  price:2500,   tier:3 },
-  { id:"w4", name:"Lame du Dragon", emoji:"🐲", atk:200,def:10, price:15000,  tier:4 },
-  { id:"w5", name:"Excalibur",      emoji:"🌟", atk:500,def:20, price:100000, tier:5 },
-];
-
-const ARMORS = [
-  { id:"a0", name:"Robe de Tissu",  emoji:"👘", def:3,   atk:0,  price:0,     tier:0 },
-  { id:"a1", name:"Armure de Cuir", emoji:"🦺", def:10,  atk:0,  price:150,   tier:1 },
-  { id:"a2", name:"Cotte de Maille",emoji:"⛓️", def:25,  atk:0,  price:700,   tier:2 },
-  { id:"a3", name:"Armure de Plaque",emoji:"🛡️",def:60,  atk:5,  price:3500,  tier:3 },
-  { id:"a4", name:"Écailles Dragon", emoji:"🐉",def:150, atk:10, price:20000, tier:4 },
-  { id:"a5", name:"Armure Divine",  emoji:"👼", def:400, atk:25, price:150000,tier:5 },
-];
-
-const BOOSTS = [
-  { id:"b_xp",    name:"2× XP",       emoji:"📚", desc:"Double l'XP gagnée",    mult:"xp",    factor:2, duration:3600, price:50  },
-  { id:"b_gold",  name:"2× Gold",      emoji:"🪙", desc:"Double le gold gagné",  mult:"gold",  factor:2, duration:3600, price:50  },
-  { id:"b_speed", name:"2× Vitesse",   emoji:"⚡", desc:"Combat 2× plus rapide", mult:"speed", factor:2, duration:1800, price:30  },
-  { id:"b_dmg",   name:"2× Dégâts",    emoji:"💥", desc:"Double les dégâts",     mult:"dmg",   factor:2, duration:1800, price:40  },
-  { id:"b_all",   name:"Mega Boost",   emoji:"🌟", desc:"Tous les boosts ×1.5",  mult:"all",   factor:1.5,duration:7200,price:150 },
-];
-
-const PRESTIGE_UPGRADES = [
-  { id:"pu_atk",   name:"Guerrier",    desc:"+10% ATK de base",    maxLv:10, costPer:1, effect:"atk"   },
-  { id:"pu_def",   name:"Gardien",     desc:"+10% DEF de base",    maxLv:10, costPer:1, effect:"def"   },
-  { id:"pu_gold",  name:"Marchand",    desc:"+15% Gold gagné",     maxLv:10, costPer:1, effect:"gold"  },
-  { id:"pu_xp",    name:"Sage",        desc:"+15% XP gagnée",      maxLv:10, costPer:1, effect:"xp"    },
-  { id:"pu_hp",    name:"Titan",       desc:"+20% HP max",         maxLv:5,  costPer:2, effect:"hp"    },
-  { id:"pu_start", name:"Héritage",    desc:"Commencer au Lv 5",   maxLv:3,  costPer:3, effect:"start" },
-];
-
-// ─── INITIAL STATE ───────────────────────────────────────────────
-
-function defaultState() {
   return {
-    player: {
-      level: 1, xp: 0,
-      baseHp: 100, baseAtk: 10, baseDef: 5,
-      gold: 0, gems: 15,
-      weapon: "w0", armor: "a0",
-      prestigeCount: 0,
-      prestigePoints: 0,
-      purchased: { weapons:["w0"], armors:["a0"] },
-      prestigeUpgrades: { pu_atk:0, pu_def:0, pu_gold:0, pu_xp:0, pu_hp:0, pu_start:0 },
+    init, resume,
+    attack(cls) {
+      resume(); if (!AC) return;
+      if (cls==='warrior') { osc(300,  'sawtooth',  .07, .2, 150); noise(.05, .08); }
+      else if (cls==='mage')   { osc(1200, 'sine', .25, .15, 600); osc(1800, 'sine', .15, .08, 900); }
+      else if (cls==='archer') { osc(500,  'triangle',.12, .18, 200); noise(.04, .05); }
+      else                     { osc(700,  'sawtooth', .06, .2, 300); osc(900, 'sawtooth', .04, .1, 400); }
     },
-    boosts: [],       // [{id, expiresAt}]
-    combat: { zone: 1, monster: null, monsterHp: 0 },
-    stats: { totalKills:0, totalGold:0, totalXp:0, totalPrestige:0, playtime:0 },
-    lastSave: Date.now(),
+    hit()    { resume(); osc(180, 'square',   .12, .25, 80);  noise(.08, .12); },
+    crit()   { resume(); osc(500, 'sawtooth', .05, .3, 900);  osc(200, 'square', .15, .2, 80); noise(.06, .15); },
+    levelUp(){ resume(); const n=[523,659,784,1047]; n.forEach((f,i)=>setTimeout(()=>osc(f,'sine',.3,.18),i*110)); },
+    gold()   { resume(); osc(880, 'sine', .07, .12); setTimeout(()=>osc(1100,'sine',.06,.08),55); },
+    buy()    { resume(); osc(440, 'sine', .1, .2); setTimeout(()=>osc(660,'sine',.15,.15),95); },
+    monDie() { resume(); osc(300, 'sawtooth', .4, .2, 50); noise(.12, .1); },
+    playerDie(){ resume(); osc(250,'sawtooth',.6,.25,60); setTimeout(()=>osc(180,'sine',.6,.15,80),200); },
+    prestige(){ resume(); const n=[523,659,784,659,1047]; n.forEach((f,i)=>setTimeout(()=>{osc(f,'sine',.4,.15);osc(f*1.5,'sine',.3,.06)},i*140)); },
+    boost()  { resume(); for(let i=0;i<6;i++) setTimeout(()=>osc(400+i*120,'sine',.12,.1),i*40); },
   };
+})();
+
+// ══════════════════════════════════════════════
+//  CANVAS DRAWING HELPERS
+// ══════════════════════════════════════════════
+function dk(hex, amt) {
+  return '#'+[1,3,5].map(i=>Math.max(0,parseInt(hex.slice(i,i+2),16)-amt).toString(16).padStart(2,'0')).join('');
 }
 
-// ─── GAME STATE ──────────────────────────────────────────────────
-
-let G = defaultState();
-
-// Derived combat stats (recalculated on demand)
-function getStats() {
-  const p = G.player;
-  const prestige = p.prestigeCount;
-  const pu = p.prestigeUpgrades;
-
-  // Prestige multipliers
-  const atkMult = 1 + (prestige * 0.05) + (pu.pu_atk * 0.10);
-  const defMult = 1 + (prestige * 0.05) + (pu.pu_def * 0.10);
-  const hpMult  = 1 + (prestige * 0.05) + (pu.pu_hp  * 0.20);
-  const goldMult= 1 + (prestige * 0.05) + (pu.pu_gold* 0.15);
-  const xpMult  = 1 + (prestige * 0.05) + (pu.pu_xp  * 0.15);
-
-  // Equipment bonus
-  const wpn = WEAPONS.find(w => w.id === p.weapon) || WEAPONS[0];
-  const arm = ARMORS.find(a => a.id === p.armor)   || ARMORS[0];
-
-  let atk = Math.floor((p.baseAtk + wpn.atk + arm.atk) * atkMult);
-  let def = Math.floor((p.baseDef + wpn.def + arm.def) * defMult);
-  let hp  = Math.floor((p.baseHp) * hpMult);
-
-  // Boost multipliers
-  const boostDmg   = hasBoost("b_dmg")  ? 2 : 1;
-  const boostAll   = hasBoost("b_all")  ? 1.5 : 1;
-  const boostGold  = (hasBoost("b_gold")? 2 : 1) * boostAll;
-  const boostXp    = (hasBoost("b_xp")  ? 2 : 1) * boostAll;
-  const boostSpeed = hasBoost("b_speed") ? 2 : 1;
-
-  atk = Math.floor(atk * boostDmg * boostAll);
-
-  return {
-    atk, def, maxHp: hp,
-    goldMult: goldMult * boostGold,
-    xpMult:   xpMult  * boostXp,
-    speed:    boostSpeed,
-  };
+function drawShadow(ctx, x, y) {
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.beginPath(); ctx.ellipse(x, y, 18, 5, 0, 0, Math.PI*2); ctx.fill();
 }
 
-function xpNeeded(level) { return Math.floor(100 * Math.pow(level, 1.55)); }
+// ── Draw human character at (cx, by=feet bottom) ──
+function drawHuman(ctx, cx, by, opts) {
+  const {skin='#f4c28a', hair='#5c3317', hairStyle=0, armor='#4a6fa5',
+         acnt='#7aa0d4', weap='sword', facing=1, bob=0, atkOff=0, hitFlash=false} = opts;
 
-function hasBoost(id) {
-  return G.boosts.some(b => b.id === id && b.expiresAt > Date.now());
-}
+  ctx.save();
+  ctx.translate(cx + atkOff, by);
+  ctx.scale(facing, 1);
+  if (hitFlash) ctx.globalAlpha = 0.3 + Math.random()*0.7;
+  drawShadow(ctx, 0, 2);
 
-// ─── SAVE / LOAD ─────────────────────────────────────────────────
+  // Boots
+  ctx.fillStyle = '#2d1f14'; ctx.strokeStyle = '#1a0e08'; ctx.lineWidth = 1;
+  ctx.fillRect(-12, -10+bob, 10, 10); ctx.strokeRect(-12,-10+bob,10,10);
+  ctx.fillRect(2,   -10+bob, 10, 10); ctx.strokeRect(2,  -10+bob,10,10);
 
-function save() {
-  G.lastSave = Date.now();
-  try { localStorage.setItem("idlerpg_v2", JSON.stringify(G)); } catch(e) {}
-}
+  // Legs
+  ctx.fillStyle = armor; ctx.strokeStyle = dk(armor,30);
+  ctx.fillRect(-12,-28+bob,10,18); ctx.strokeRect(-12,-28+bob,10,18);
+  ctx.fillRect(2,  -28+bob,10,18); ctx.strokeRect(2,  -28+bob,10,18);
 
-function load() {
-  try {
-    const raw = localStorage.getItem("idlerpg_v2");
-    if (!raw) return;
-    const saved = JSON.parse(raw);
-    // Deep merge to handle new fields
-    G = deepMerge(defaultState(), saved);
-  } catch(e) { /* corrupt save, use defaults */ }
-}
+  // Body
+  ctx.fillStyle = armor;
+  ctx.beginPath(); ctx.roundRect(-14,-52+bob,28,24,4); ctx.fill();
+  ctx.strokeStyle = dk(armor,25); ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle = acnt; ctx.fillRect(-3,-49+bob,6,8);
 
-function deepMerge(target, src) {
-  if (!src || typeof src !== "object") return target;
-  const out = Object.assign({}, target);
-  for (const k in src) {
-    if (src[k] && typeof src[k] === "object" && !Array.isArray(src[k]) && typeof out[k] === "object" && !Array.isArray(out[k])) {
-      out[k] = deepMerge(out[k], src[k]);
+  // Left arm
+  ctx.fillStyle = armor; ctx.strokeStyle = dk(armor,30);
+  ctx.fillRect(-22,-50+bob,8,20); ctx.strokeRect(-22,-50+bob,8,20);
+
+  // Shield (warrior only)
+  if (weap==='sword') {
+    ctx.fillStyle='#b91c1c'; ctx.strokeStyle='#7f1d1d'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-30,-54+bob); ctx.lineTo(-22,-54+bob);
+    ctx.lineTo(-22,-34+bob); ctx.lineTo(-26,-29+bob); ctx.lineTo(-30,-34+bob);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#ca8a04'; ctx.beginPath(); ctx.arc(-26,-44+bob,3,0,Math.PI*2); ctx.fill();
+  }
+
+  // Right arm
+  ctx.fillStyle=armor; ctx.strokeStyle=dk(armor,30); ctx.lineWidth=1;
+  ctx.fillRect(14,-50+bob,8,20); ctx.strokeRect(14,-50+bob,8,20);
+
+  // Weapon
+  ctx.lineWidth=2.5;
+  if (weap==='sword') {
+    ctx.strokeStyle='#d1d5db'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(18,-32+bob); ctx.lineTo(18,-64); ctx.stroke();
+    ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(11,-40+bob); ctx.lineTo(25,-40+bob); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(16,-62); ctx.lineTo(20,-62); ctx.lineTo(18,-69); ctx.closePath(); ctx.fill();
+  } else if (weap==='staff') {
+    ctx.strokeStyle='#92400e'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(20,-32+bob); ctx.lineTo(20,-70); ctx.stroke();
+    const gr=ctx.createRadialGradient(20,-72,2,20,-72,9);
+    gr.addColorStop(0,'#fff'); gr.addColorStop(.5,'#a855f7'); gr.addColorStop(1,'rgba(168,85,247,0)');
+    ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(20,-72,9,0,Math.PI*2); ctx.fill();
+  } else if (weap==='bow') {
+    ctx.strokeStyle='#92400e'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.arc(-20,-44+bob,20,-0.8,0.8); ctx.stroke();
+    ctx.lineWidth=1; ctx.strokeStyle='#d4b483';
+    ctx.beginPath(); ctx.moveTo(-3,-56+bob); ctx.lineTo(-3,-32+bob); ctx.stroke();
+    ctx.strokeStyle='#d1d5db'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(-3,-52+bob); ctx.lineTo(10,-48+bob); ctx.stroke();
+  } else {
+    ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(18,-34+bob); ctx.lineTo(26,-54); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(14,-38+bob); ctx.lineTo(6,-55); ctx.stroke();
+  }
+
+  // Neck
+  ctx.fillStyle=skin; ctx.fillRect(-4,-56+bob,8,6);
+
+  // Head
+  ctx.fillStyle=skin; ctx.strokeStyle=dk(skin,30); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.ellipse(0,-64+bob,11,12,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+  // Hair / hat
+  if (weap==='sword') {
+    ctx.fillStyle=armor; ctx.strokeStyle=dk(armor,20); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,-66+bob,11,10,0,Math.PI,0); ctx.fill(); ctx.stroke();
+    ctx.fillRect(-11,-68+bob,22,5); ctx.strokeRect(-11,-68+bob,22,5);
+    ctx.fillStyle=acnt; ctx.fillRect(-2,-68+bob,4,5);
+  } else if (weap==='staff') {
+    ctx.fillStyle=armor; ctx.strokeStyle=dk(armor,20); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,-72+bob,14,4,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-10,-72+bob); ctx.lineTo(0,-92+bob); ctx.lineTo(10,-72+bob); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=hair; ctx.strokeStyle=dk(hair,20);
+    ctx.beginPath(); ctx.ellipse(0,-67+bob,10,8,0,Math.PI,0); ctx.fill();
+  } else {
+    ctx.fillStyle=hair; ctx.strokeStyle=dk(hair,20); ctx.lineWidth=1;
+    if (hairStyle===0) { ctx.beginPath(); ctx.ellipse(0,-67+bob,11,9,0,Math.PI,0); ctx.fill(); ctx.stroke(); }
+    else if (hairStyle===1) {
+      ctx.beginPath(); ctx.moveTo(-11,-64+bob); ctx.lineTo(-7,-80+bob); ctx.lineTo(-2,-70+bob);
+      ctx.lineTo(0,-82+bob); ctx.lineTo(4,-72+bob); ctx.lineTo(8,-78+bob); ctx.lineTo(11,-64+bob);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+    } else if (hairStyle===2) {
+      ctx.beginPath(); ctx.ellipse(0,-67+bob,11,9,0,Math.PI,0); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-11,-64+bob); ctx.quadraticCurveTo(-18,-50+bob,-14,-34+bob);
+      ctx.lineTo(-9,-34+bob); ctx.quadraticCurveTo(-12,-50+bob,-7,-64+bob); ctx.fill();
     } else {
-      out[k] = src[k];
+      ctx.beginPath(); ctx.ellipse(0,-67+bob,11,9,0,Math.PI,0); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(7,-74+bob,6,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    }
+    // Archer hood
+    if (weap==='bow') {
+      ctx.fillStyle=armor; ctx.globalAlpha=0.7;
+      ctx.beginPath(); ctx.ellipse(0,-66+bob,12,10,0,Math.PI,0); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    // Rogue mask
+    if (weap==='dagger') {
+      ctx.fillStyle=dk(armor,0); ctx.globalAlpha=0.85;
+      ctx.fillRect(-11,-68+bob,22,10); ctx.globalAlpha=1;
     }
   }
-  return out;
+
+  // Eyes
+  ctx.fillStyle='#1a1a2e';
+  ctx.fillRect(-5,-63+bob,3,3); ctx.fillRect(2,-63+bob,3,3);
+  ctx.fillStyle='rgba(255,255,255,.7)';
+  ctx.fillRect(-4,-64+bob,1,1); ctx.fillRect(3,-64+bob,1,1);
+
+  ctx.restore();
 }
 
-// ─── IDLE REWARDS ────────────────────────────────────────────────
+// ── MONSTER DRAWING ──
+function drawSlime(ctx, cx, by, bob, hit) {
+  ctx.save(); ctx.translate(cx, by);
+  if (hit) ctx.globalAlpha = 0.3 + Math.random()*0.7;
+  drawShadow(ctx, 0, 2);
+  const g = ctx.createRadialGradient(-8,-30+bob,4,0,-28+bob,28);
+  g.addColorStop(0,'#86efac'); g.addColorStop(1,'#16a34a');
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.ellipse(0,-22+bob,28,22,0,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#15803d'; ctx.lineWidth=2; ctx.stroke();
+  // Highlights
+  ctx.fillStyle='rgba(255,255,255,.25)';
+  ctx.beginPath(); ctx.ellipse(-8,-30+bob,8,6,-.3,0,Math.PI*2); ctx.fill();
+  // Eyes
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-9,-22+bob,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(9,-22+bob,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1e3a2f'; ctx.beginPath(); ctx.arc(-8,-22+bob,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(10,-22+bob,3,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-7,-23+bob,1,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(11,-23+bob,1,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
 
-function checkOfflineRewards() {
-  const elapsed = Math.floor((Date.now() - G.lastSave) / 1000);
-  if (elapsed < 60) return; // less than 1 minute, skip
+function drawMonsterHumanoid(ctx, cx, by, bob, hit, cfg) {
+  const {bc='#4ade80',sc='#166534',ec='#dc2626',sz=1,skull=false,wings=false} = cfg;
+  ctx.save(); ctx.translate(cx, by); ctx.scale(sz,sz);
+  if (hit) ctx.globalAlpha = 0.3+Math.random()*0.7;
+  drawShadow(ctx, 0, 2);
 
-  // Cap idle time at 8 hours
-  const idleSec = Math.min(elapsed, 8 * 3600);
-  const st = getStats();
-  const zone = G.combat.zone;
-  const monsters = MONSTERS[zone];
-  const avgMon = monsters[Math.floor(monsters.length / 2)];
+  if (wings) {
+    ctx.fillStyle=dk(bc,20)+'cc'; ctx.strokeStyle=dk(bc,40); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,-50+bob); ctx.bezierCurveTo(-40,-80+bob,-50,-40+bob,-20,-20+bob); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0,-50+bob); ctx.bezierCurveTo(40,-80+bob,50,-40+bob,20,-20+bob); ctx.fill();
+  }
+  // Legs
+  ctx.fillStyle=sc; ctx.strokeStyle=dk(sc,20); ctx.lineWidth=1;
+  ctx.fillRect(-10,-26+bob,9,26); ctx.strokeRect(-10,-26+bob,9,26);
+  ctx.fillRect(1,  -26+bob,9,26); ctx.strokeRect(1,  -26+bob,9,26);
+  // Body
+  ctx.fillStyle=bc; ctx.strokeStyle=dk(bc,20);
+  ctx.beginPath(); ctx.roundRect(-13,-52+bob,26,26,3); ctx.fill(); ctx.stroke();
+  // Arms
+  ctx.fillStyle=sc;
+  ctx.fillRect(-20,-50+bob,7,22); ctx.strokeRect(-20,-50+bob,7,22);
+  ctx.fillRect(13,-50+bob,7,22); ctx.strokeRect(13,-50+bob,7,22);
+  // Weapon (claws/axe glow)
+  ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(17,-32+bob); ctx.lineTo(26,-52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(21,-32+bob); ctx.lineTo(28,-48); ctx.stroke();
 
-  // How many kills per minute roughly?
-  const killsPerMin = 60 / Math.max(3, avgMon.hp / Math.max(1, st.atk - avgMon.def));
-  const totalKills = Math.floor(killsPerMin * idleSec / 60);
+  if (skull) {
+    // Skull face
+    ctx.fillStyle='#f0f0e0'; ctx.strokeStyle='#a09060'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,-62+bob,12,13,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.ellipse(-5,-61+bob,4,5,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(5,-61+bob,4,5,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#6b5a30'; ctx.lineWidth=1.5;
+    for (let i=-4;i<=4;i+=2.5) { ctx.beginPath(); ctx.moveTo(i,-52+bob); ctx.lineTo(i,-48+bob); ctx.stroke(); }
+  } else {
+    ctx.fillStyle=bc; ctx.strokeStyle=dk(bc,30); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.ellipse(0,-63+bob,11,12,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Pointy ears
+    ctx.beginPath(); ctx.moveTo(-11,-68+bob); ctx.lineTo(-16,-78+bob); ctx.lineTo(-6,-70+bob); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(11,-68+bob);  ctx.lineTo(16,-78+bob);  ctx.lineTo(6,-70+bob);  ctx.fill();
+    // Eyes
+    ctx.fillStyle=ec; ctx.beginPath(); ctx.arc(-5,-63+bob,3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5,-63+bob,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1a0000'; ctx.beginPath(); ctx.arc(-5,-63+bob,1.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5,-63+bob,1.5,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
 
-  const goldGained = Math.floor(avgMon.gold * st.goldMult * totalKills);
-  const xpGained   = Math.floor(avgMon.xp   * st.xpMult   * totalKills);
+function drawWolf(ctx, cx, by, bob, hit) {
+  ctx.save(); ctx.translate(cx, by);
+  if (hit) ctx.globalAlpha = 0.3+Math.random()*0.7;
+  drawShadow(ctx, 0, 2);
+  ctx.fillStyle='#94a3b8'; ctx.strokeStyle='#475569'; ctx.lineWidth=1.5;
+  // Body
+  ctx.beginPath(); ctx.ellipse(-5,-20+bob,24,14,-.2,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  // Legs
+  ctx.fillStyle='#64748b'; ctx.lineWidth=1;
+  ctx.fillRect(-22,-14+bob,6,14); ctx.fillRect(-12,-14+bob,6,14);
+  ctx.fillRect(2,  -14+bob,6,14); ctx.fillRect(12,  -14+bob,6,14);
+  // Head
+  ctx.fillStyle='#94a3b8'; ctx.strokeStyle='#475569'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.ellipse(18,-28+bob,12,10,0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  // Snout
+  ctx.fillStyle='#b0bec5';
+  ctx.beginPath(); ctx.ellipse(27,-26+bob,7,5,.1,0,Math.PI*2); ctx.fill();
+  // Ears
+  ctx.fillStyle='#94a3b8'; ctx.strokeStyle='#475569';
+  ctx.beginPath(); ctx.moveTo(10,-34+bob); ctx.lineTo(6,-46+bob); ctx.lineTo(16,-36+bob); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(18,-35+bob); ctx.lineTo(16,-47+bob); ctx.lineTo(24,-36+bob); ctx.fill();
+  // Eye + nose
+  ctx.fillStyle='#f59e0b'; ctx.beginPath(); ctx.arc(19,-29+bob,2.5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.arc(19,-29+bob,1.2,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a1a1a'; ctx.beginPath(); ctx.arc(28,-24+bob,2,0,Math.PI*2); ctx.fill();
+  // Tail
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=5;
+  ctx.beginPath(); ctx.moveTo(-26,-20+bob); ctx.quadraticCurveTo(-40,-10+bob,-36,-2+bob); ctx.stroke();
+  ctx.restore();
+}
 
-  G.player.gold += goldGained;
-  G.stats.totalGold += goldGained;
+function drawDragon(ctx, cx, by, bob, hit, big=false) {
+  const sc = big ? 1.6 : 1;
+  ctx.save(); ctx.translate(cx, by); ctx.scale(sc,sc);
+  if (hit) ctx.globalAlpha = 0.3+Math.random()*0.7;
+  drawShadow(ctx, 0, 2/sc);
+  // Wings
+  ctx.fillStyle='rgba(185,28,28,0.5)'; ctx.strokeStyle='#7f1d1d'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,-40+bob); ctx.bezierCurveTo(-50,-75+bob,-55,-30+bob,-20,-15+bob); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-40+bob); ctx.bezierCurveTo(50,-75+bob,55,-30+bob,20,-15+bob); ctx.fill(); ctx.stroke();
+  // Body
+  ctx.fillStyle='#dc2626'; ctx.strokeStyle='#991b1b'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.ellipse(0,-22+bob,24,16,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#f87171';
+  ctx.beginPath(); ctx.ellipse(-5,-24+bob,10,8,-0.3,0,Math.PI*2); ctx.fill();
+  // Legs
+  ctx.fillStyle='#b91c1c'; ctx.lineWidth=1;
+  ctx.fillRect(-18,-10+bob,8,10); ctx.fillRect(10,-10+bob,8,10);
+  // Head
+  ctx.fillStyle='#dc2626'; ctx.strokeStyle='#991b1b'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.ellipse(22,-38+bob,16,12,.2,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  // Snout
+  ctx.fillStyle='#ef4444';
+  ctx.beginPath(); ctx.ellipse(35,-35+bob,10,7,.1,0,Math.PI*2); ctx.fill();
+  // Nostril flame
+  ctx.fillStyle='#fbbf24'; ctx.beginPath(); ctx.arc(42,-33+bob,4,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#f97316'; ctx.beginPath(); ctx.arc(42,-33+bob,2.5,0,Math.PI*2); ctx.fill();
+  // Eye
+  ctx.fillStyle='#fbbf24'; ctx.beginPath(); ctx.arc(22,-40+bob,4,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#1a0000'; ctx.beginPath(); ctx.arc(22,-40+bob,2,0,Math.PI*2); ctx.fill();
+  // Horns
+  ctx.strokeStyle='#7f1d1d'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(12,-46+bob); ctx.lineTo(6,-60+bob); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(20,-48+bob); ctx.lineTo(16,-62+bob); ctx.stroke();
+  // Tail
+  ctx.strokeStyle='#dc2626'; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(-22,-18+bob); ctx.quadraticCurveTo(-44,-8+bob,-40,2+bob); ctx.stroke();
+  ctx.restore();
+}
+
+// Monster draw dispatcher
+function drawMonster(ctx, cx, by, monName, bob, hit) {
+  const n = monName;
+  if (n==='Slime')          return drawSlime(ctx,cx,by,bob,hit);
+  if (n==='Gobelin')        return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#4ade80',sc:'#166534',ec:'#dc2626',sz:.75});
+  if (n==='Rat Géant')      return drawWolf(ctx,cx,by,bob,hit);
+  if (n==='Loup Féroce')    return drawWolf(ctx,cx,by,bob,hit);
+  if (n==='Squelette')      return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#e2e8f0',sc:'#94a3b8',ec:'#000',skull:true});
+  if (n==='Orc')            return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#16a34a',sc:'#14532d',ec:'#dc2626',sz:1.1});
+  if (n==='Troll')          return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#78716c',sc:'#44403c',ec:'#ef4444',sz:1.3});
+  if (n==='Elfe Noir')      return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#4c1d95',sc:'#1e1b4b',ec:'#a855f7'});
+  if (n==='Vampire')        return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#1e293b',sc:'#0f172a',ec:'#dc2626'});
+  if (n==='Dragonnet')      return drawDragon(ctx,cx,by,bob,hit,false);
+  if (n==='Géant de Glace') return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#bae6fd',sc:'#0ea5e9',ec:'#1d4ed8',sz:1.5});
+  if (n==='Démon')          return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#dc2626',sc:'#7f1d1d',ec:'#fbbf24',wings:true});
+  if (n==='Dragon Ancien')  return drawDragon(ctx,cx,by,bob,hit,true);
+  if (n==='Liche')          return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#4c1d95',sc:'#1e1b4b',ec:'#a855f7',skull:true,sz:1.1});
+  if (n==='Seigneur Démon') return drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#7f1d1d',sc:'#450a0a',ec:'#fbbf24',wings:true,sz:1.4});
+  // Default fallback
+  drawMonsterHumanoid(ctx,cx,by,bob,hit,{bc:'#6b7280',sc:'#374151',ec:'#ef4444'});
+}
+
+// ══════════════════════════════════════════════
+//  ZONE BACKGROUNDS
+// ══════════════════════════════════════════════
+function drawBackground(ctx, W, H, zone) {
+  const bgs = {
+    1:{sky:['#134e4a','#0f766e'],ground:'#1a3a2a',deco:'#166534'},
+    2:{sky:['#431407','#7c2d12'],ground:'#3b1f0f',deco:'#92400e'},
+    3:{sky:['#1e1b4b','#312e81'],ground:'#1a1040',deco:'#4c1d95'},
+    4:{sky:['#450a0a','#7f1d1d'],ground:'#2d0e0e',deco:'#991b1b'},
+    5:{sky:['#050510','#0d0d30'],ground:'#0a0a20',deco:'#1e1b4b'},
+  };
+  const b = bgs[zone] || bgs[1];
+  const sg = ctx.createLinearGradient(0,0,0,H*.75);
+  sg.addColorStop(0, b.sky[0]); sg.addColorStop(1, b.sky[1]);
+  ctx.fillStyle=sg; ctx.fillRect(0,0,W,H*.75);
+  // Ground
+  ctx.fillStyle=b.ground; ctx.fillRect(0,H*.72,W,H*.28);
+  ctx.fillStyle=b.deco; ctx.fillRect(0,H*.72,W,4);
+  // Zone decorations
+  if (zone===1) { // Trees
+    for (let x of [40,80,380,430]) {
+      ctx.fillStyle='#374151'; ctx.fillRect(x-3,H*.4,6,H*.32);
+      ctx.fillStyle=b.deco; ctx.beginPath(); ctx.arc(x,H*.35,18,0,Math.PI*2); ctx.fill();
+    }
+  } else if (zone===2) { // Rocks
+    ctx.fillStyle='#44403c';
+    for (let rx of [30,400,450]) { ctx.beginPath(); ctx.ellipse(rx,H*.7,20,12,0,0,Math.PI*2); ctx.fill(); }
+  } else if (zone===3) { // Pillars
+    ctx.fillStyle='#1e1b4b';
+    for (let rx of [20,60,380,430]) { ctx.fillRect(rx-8,H*.2,16,H*.55); }
+  } else if (zone===4) { // Lava cracks
+    ctx.strokeStyle='#f97316'; ctx.lineWidth=2;
+    for (let i=0;i<5;i++) {
+      ctx.beginPath(); ctx.moveTo(Math.random()*W,H*.73);
+      ctx.lineTo(Math.random()*W,H*.9); ctx.stroke();
+    }
+  } else { // Stars
+    ctx.fillStyle='rgba(255,255,255,.6)';
+    for (let i=0;i<30;i++) { ctx.beginPath(); ctx.arc(Math.random()*W,Math.random()*H*.7,1,0,Math.PI*2); ctx.fill(); }
+  }
+}
+
+// ══════════════════════════════════════════════
+//  PARTICLE EFFECTS
+// ══════════════════════════════════════════════
+const particles = [];
+function spawnHitParticles(x, y, color='#fbbf24') {
+  for (let i=0;i<8;i++) {
+    const a = Math.random()*Math.PI*2, s = 1+Math.random()*3;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,life:20,maxLife:20,color,r:2+Math.random()*3});
+  }
+}
+function updateParticles(ctx) {
+  for (let i=particles.length-1;i>=0;i--) {
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.15;
+    p.life--;
+    if (p.life<=0) { particles.splice(i,1); continue; }
+    ctx.globalAlpha=p.life/p.maxLife;
+    ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r*(p.life/p.maxLife),0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=1;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  DATA DEFINITIONS
+// ══════════════════════════════════════════════
+const ZONES=[
+  {id:1,name:"Forêt des Débutants",unlockLv:1},
+  {id:2,name:"Collines des Orcs",  unlockLv:5},
+  {id:3,name:"Cryptes Maudites",   unlockLv:15},
+  {id:4,name:"Montagne des Dragons",unlockLv:30},
+  {id:5,name:"Abîme Infernal",     unlockLv:50},
+];
+const MONSTERS={
+  1:[{name:"Slime",       hp:20,  atk:3,  def:0, xp:8,  gold:4 },
+     {name:"Gobelin",     hp:30,  atk:5,  def:1, xp:12, gold:6 },
+     {name:"Rat Géant",   hp:25,  atk:4,  def:0, xp:10, gold:5 }],
+  2:[{name:"Loup Féroce", hp:80,  atk:12, def:3, xp:30, gold:18},
+     {name:"Squelette",   hp:70,  atk:10, def:5, xp:28, gold:15},
+     {name:"Orc",         hp:100, atk:15, def:4, xp:40, gold:22}],
+  3:[{name:"Troll",       hp:250, atk:25, def:8,  xp:80,  gold:50 },
+     {name:"Elfe Noir",   hp:200, atk:30, def:6,  xp:90,  gold:60 },
+     {name:"Vampire",     hp:300, atk:28, def:10, xp:100, gold:70 }],
+  4:[{name:"Dragonnet",   hp:800, atk:60, def:20, xp:250,  gold:180},
+     {name:"Géant de Glace",hp:1000,atk:50,def:30,xp:300, gold:200},
+     {name:"Démon",       hp:900, atk:70, def:15, xp:280,  gold:190}],
+  5:[{name:"Dragon Ancien",hp:5000,atk:150,def:60,xp:1000, gold:800},
+     {name:"Liche",       hp:4000,atk:180,def:50,xp:1100,  gold:900},
+     {name:"Seigneur Démon",hp:6000,atk:200,def:70,xp:1500,gold:1200}],
+};
+const WEAPONS=[
+  {id:"w0",name:"Épée en Bois",  emoji:"🪵",atk:5,  def:0, price:0     },
+  {id:"w1",name:"Épée de Fer",   emoji:"⚔️",atk:15, def:0, price:100   },
+  {id:"w2",name:"Épée d'Acier",  emoji:"🗡️",atk:35, def:0, price:500   },
+  {id:"w3",name:"Épée Mithril",  emoji:"✨",atk:80, def:5, price:2500  },
+  {id:"w4",name:"Lame du Dragon",emoji:"🐲",atk:200,def:10,price:15000 },
+  {id:"w5",name:"Excalibur",     emoji:"🌟",atk:500,def:20,price:100000},
+];
+const ARMORS=[
+  {id:"a0",name:"Robe de Tissu", emoji:"👘",def:3,  atk:0, price:0     },
+  {id:"a1",name:"Armure de Cuir",emoji:"🦺",def:10, atk:0, price:150   },
+  {id:"a2",name:"Cotte de Maille",emoji:"⛓️",def:25,atk:0, price:700   },
+  {id:"a3",name:"Armure Plaque", emoji:"🛡️",def:60, atk:5, price:3500  },
+  {id:"a4",name:"Écailles Dragon",emoji:"🐉",def:150,atk:10,price:20000},
+  {id:"a5",name:"Armure Divine", emoji:"👼",def:400,atk:25,price:150000},
+];
+const BOOSTS=[
+  {id:"b_xp",   name:"2× XP",    emoji:"📚",desc:"Double l'XP",         mult:"xp",   factor:2,  duration:3600,price:50 },
+  {id:"b_gold", name:"2× Gold",  emoji:"🪙",desc:"Double le gold",      mult:"gold", factor:2,  duration:3600,price:50 },
+  {id:"b_speed",name:"2× Vit.",  emoji:"⚡",desc:"Combat 2× rapide",    mult:"speed",factor:2,  duration:1800,price:30 },
+  {id:"b_dmg",  name:"2× Dég.",  emoji:"💥",desc:"Double les dégâts",   mult:"dmg",  factor:2,  duration:1800,price:40 },
+  {id:"b_all",  name:"Mega",     emoji:"🌟",desc:"Tous les boosts ×1.5",mult:"all",  factor:1.5,duration:7200,price:150},
+];
+const PRESTIGE_UPGRADES=[
+  {id:"pu_atk", name:"Guerrier",desc:"+10% ATK de base", maxLv:10,costPer:1,effect:"atk"  },
+  {id:"pu_def", name:"Gardien", desc:"+10% DEF de base", maxLv:10,costPer:1,effect:"def"  },
+  {id:"pu_gold",name:"Marchand",desc:"+15% Gold gagné",  maxLv:10,costPer:1,effect:"gold" },
+  {id:"pu_xp",  name:"Sage",    desc:"+15% XP gagnée",   maxLv:10,costPer:1,effect:"xp"   },
+  {id:"pu_hp",  name:"Titan",   desc:"+20% HP max",       maxLv:5, costPer:2,effect:"hp"   },
+  {id:"pu_start",name:"Héritage",desc:"Commence Lv+5",   maxLv:3, costPer:3,effect:"start"},
+];
+
+const CLASS_DEFS = {
+  warrior:{label:"Guerrier",weap:"sword", armorClr:"#4a6fa5",acnt:"#7aa0d4", atkM:.9,defM:1.4,hpM:1.3,crit:.08,desc:"Tank résistant. HP+30%, DEF+40%."},
+  mage:   {label:"Mage",    weap:"staff", armorClr:"#7c3aed",acnt:"#c084fc", atkM:1.4,defM:.8,hpM:.9,crit:.15,desc:"DPS magique. ATK+40%, Crit+15%."},
+  archer: {label:"Archer",  weap:"bow",   armorClr:"#4a7c59",acnt:"#86bb94", atkM:1.2,defM:1.0,hpM:1.0,crit:.12,speed:1.3,desc:"Rapide et précis. ATK+20%, Vitesse+30%."},
+  rogue:  {label:"Voleur",  weap:"dagger",armorClr:"#1e293b",acnt:"#475569", atkM:1.1,defM:.9,hpM:.9,crit:.25,goldM:1.1,desc:"Chanceux. Crit+25%, Gold+10%."},
+};
+
+const SKIN_COLORS  = ['#fde68a','#f4c28a','#d4956a','#a0614a','#5c3317'];
+const HAIR_COLORS  = ['#fbbf24','#f97316','#dc2626','#5c3317','#1e293b','#e2e8f0'];
+
+// ══════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════
+function defaultState() {
+  return {
+    player:{
+      name:"Hero", cls:"warrior",
+      skin:SKIN_COLORS[1], hair:HAIR_COLORS[3], hairStyle:0,
+      level:1, xp:0,
+      baseHp:100, baseAtk:10, baseDef:5,
+      gold:0, gems:15,
+      weapon:"w0", armor:"a0",
+      prestigeCount:0, prestigePoints:0,
+      purchased:{weapons:["w0"],armors:["a0"]},
+      prestigeUpgrades:{pu_atk:0,pu_def:0,pu_gold:0,pu_xp:0,pu_hp:0,pu_start:0},
+    },
+    boosts:[],
+    combat:{zone:1,monster:null,monsterHp:0},
+    stats:{totalKills:0,totalGold:0,totalXp:0,totalPrestige:0},
+    lastSave:Date.now(),
+    charCreated:false,
+  };
+}
+let G = defaultState();
+
+function getStats() {
+  const p=G.player, pu=p.prestigeUpgrades;
+  const prestige=p.prestigeCount;
+  const cd=CLASS_DEFS[p.cls]||CLASS_DEFS.warrior;
+  const atkMult=(1+(prestige*.05)+(pu.pu_atk*.10))*cd.atkM;
+  const defMult=(1+(prestige*.05)+(pu.pu_def*.10))*cd.defM;
+  const hpMult =(1+(prestige*.05)+(pu.pu_hp*.20)) *cd.hpM;
+  const goldMult=(1+(prestige*.05)+(pu.pu_gold*.15))*(cd.goldM||1);
+  const xpMult =(1+(prestige*.05)+(pu.pu_xp*.15));
+  const wpn=WEAPONS.find(w=>w.id===p.weapon)||WEAPONS[0];
+  const arm=ARMORS.find(a=>a.id===p.armor)||ARMORS[0];
+  const boostDmg  =hasBoost("b_dmg") ?2:1;
+  const boostAll  =hasBoost("b_all") ?1.5:1;
+  const boostGold =(hasBoost("b_gold")?2:1)*boostAll;
+  const boostXp   =(hasBoost("b_xp")  ?2:1)*boostAll;
+  const boostSpeed=hasBoost("b_speed")?2:1;
+  let atk=Math.floor((p.baseAtk+wpn.atk+arm.atk)*atkMult*boostDmg*boostAll);
+  let def=Math.floor((p.baseDef+wpn.def+arm.def)*defMult);
+  let hp =Math.floor(p.baseHp*hpMult);
+  const speed=(cd.speed||1)*boostSpeed;
+  const crit=cd.crit||.1;
+  return {atk,def,maxHp:hp,goldMult:goldMult*boostGold,xpMult:xpMult*boostXp,speed,crit};
+}
+function xpNeeded(lv){return Math.floor(100*Math.pow(lv,1.55));}
+function hasBoost(id){return G.boosts.some(b=>b.id===id&&b.expiresAt>Date.now());}
+
+// ══════════════════════════════════════════════
+//  SAVE / LOAD
+// ══════════════════════════════════════════════
+function save(){G.lastSave=Date.now();try{localStorage.setItem("idlerpg_v3",JSON.stringify(G));}catch(e){}}
+function load(){
+  try{
+    const raw=localStorage.getItem("idlerpg_v3")||localStorage.getItem("idlerpg_v2");
+    if(!raw)return;
+    const saved=JSON.parse(raw);
+    G=deepMerge(defaultState(),saved);
+  }catch(e){}
+}
+function deepMerge(t,s){
+  if(!s||typeof s!=="object")return t;
+  const o=Object.assign({},t);
+  for(const k in s){
+    if(s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k])&&typeof o[k]==="object"&&!Array.isArray(o[k]))
+      o[k]=deepMerge(o[k],s[k]);
+    else o[k]=s[k];
+  }
+  return o;
+}
+
+// ══════════════════════════════════════════════
+//  OFFLINE REWARDS
+// ══════════════════════════════════════════════
+function checkOfflineRewards(){
+  const elapsed=Math.floor((Date.now()-G.lastSave)/1000);
+  if(elapsed<60)return;
+  const idleSec=Math.min(elapsed,8*3600);
+  const st=getStats(), zone=G.combat.zone;
+  const monsters=MONSTERS[zone], avg=monsters[Math.floor(monsters.length/2)];
+  const killsPerMin=60/Math.max(3,avg.hp/Math.max(1,st.atk-avg.def));
+  const totalKills=Math.floor(killsPerMin*idleSec/60);
+  const goldGained=Math.floor(avg.gold*st.goldMult*totalKills);
+  const xpGained  =Math.floor(avg.xp  *st.xpMult  *totalKills);
+  G.player.gold+=goldGained; G.stats.totalGold+=goldGained;
   addXP(xpGained);
-
-  // Show modal
-  const h = Math.floor(idleSec / 3600);
-  const m = Math.floor((idleSec % 3600) / 60);
-  const timeStr = h > 0 ? `${h}h ${m}min` : `${m} minutes`;
-  document.getElementById("offline-time-msg").textContent = `Absent pendant ${timeStr} — ${totalKills} monstres vaincus !`;
-  document.getElementById("offline-reward").innerHTML =
-    `<span class="r-gold">+${fmt(goldGained)} 🪙</span>  <span class="r-xp">+${fmt(xpGained)} XP</span>`;
+  const h=Math.floor(idleSec/3600),m=Math.floor((idleSec%3600)/60);
+  const ts=h>0?`${h}h ${m}min`:`${m} minutes`;
+  document.getElementById("offline-time-msg").textContent=`Absent ${ts} — ${totalKills} monstres vaincus !`;
+  document.getElementById("offline-reward").innerHTML=
+    `<span class="r-gold">+${fmt(goldGained)}🪙</span>  <span class="r-xp">+${fmt(xpGained)} XP</span>`;
   document.getElementById("offline-modal").classList.add("open");
 }
+function closeOfflineModal(){document.getElementById("offline-modal").classList.remove("open");save();}
+window.closeOfflineModal=closeOfflineModal;
 
-function closeOfflineModal() {
-  document.getElementById("offline-modal").classList.remove("open");
-  save();
-}
-window.closeOfflineModal = closeOfflineModal;
+// ══════════════════════════════════════════════
+//  COMBAT ENGINE
+// ══════════════════════════════════════════════
+let combatInterval=null, playerCurrentHp=0;
 
-// ─── COMBAT ENGINE ───────────────────────────────────────────────
+// Animation state for canvas
+const anim={player:{state:'idle',frame:0},monster:{state:'idle',frame:0}};
 
-let combatInterval = null;
-let playerCurrentHp = 0;
+function setPlayerAnim(state){anim.player.state=state;anim.player.frame=0;}
+function setMonsterAnim(state){anim.monster.state=state;anim.monster.frame=0;}
 
-function spawnMonster() {
-  const zone  = G.combat.zone;
-  const pool  = MONSTERS[zone];
-  const mon   = { ...pool[Math.floor(Math.random() * pool.length)] };
-  // Scale HP/ATK based on zone & player level
-  const scaleFactor = 1 + (G.player.level - 1) * 0.08;
-  mon.hp  = Math.floor(mon.hp  * scaleFactor);
-  mon.atk = Math.floor(mon.atk * scaleFactor);
-  mon.def = Math.floor(mon.def);
-  G.combat.monster   = mon;
-  G.combat.monsterHp = mon.hp;
-
-  updateMonsterUI();
+function spawnMonster(){
+  const zone=G.combat.zone, pool=MONSTERS[zone];
+  const mon={...pool[Math.floor(Math.random()*pool.length)]};
+  const sf=1+(G.player.level-1)*.08;
+  mon.hp=Math.floor(mon.hp*sf); mon.atk=Math.floor(mon.atk*sf);
+  G.combat.monster=mon; G.combat.monsterHp=mon.hp;
+  setMonsterAnim('idle');
 }
 
-function startCombat() {
-  if (combatInterval) clearInterval(combatInterval);
-  playerCurrentHp = getStats().maxHp;
-  spawnMonster();
-  scheduleCombat();
+function startCombat(){
+  if(combatInterval)clearInterval(combatInterval);
+  playerCurrentHp=getStats().maxHp;
+  spawnMonster(); scheduleCombat();
 }
 
-function scheduleCombat() {
-  if (combatInterval) clearInterval(combatInterval);
-  const speed = getStats().speed;
-  const interval = Math.floor(1000 / speed);
-  combatInterval = setInterval(combatTick, interval);
+function scheduleCombat(){
+  if(combatInterval)clearInterval(combatInterval);
+  const interval=Math.floor(1000/getStats().speed);
+  combatInterval=setInterval(combatTick,interval);
 }
 
-function combatTick() {
-  const st  = getStats();
-  const mon = G.combat.monster;
-  if (!mon) { spawnMonster(); return; }
-
-  // Player attacks monster
-  let dmg = Math.max(1, st.atk - mon.def + Math.floor(Math.random() * 5) - 2);
-  const isCrit = Math.random() < 0.1;
-  if (isCrit) dmg = Math.floor(dmg * 1.8);
-
-  G.combat.monsterHp = Math.max(0, G.combat.monsterHp - dmg);
-  showDamageFloat(dmg, true, isCrit);
-  animateMonster("hit");
-  logCombat(`${isCrit ? "💥 CRITIQUE ! " : ""}Tu infliges <strong>${dmg}</strong> dégâts à ${mon.emoji} ${mon.name}.`, "hit-p");
-
-  // Check monster death
-  if (G.combat.monsterHp <= 0) {
-    killMonster(mon, st);
-    return;
-  }
-
-  // Monster attacks player
-  let mDmg = Math.max(1, mon.atk - st.def + Math.floor(Math.random() * 4) - 1);
-  playerCurrentHp = Math.max(0, playerCurrentHp - mDmg);
-  showDamageFloat(mDmg, false, false);
-  logCombat(`${mon.emoji} ${mon.name} t'inflige <strong>${mDmg}</strong> dégâts.`, "hit-m");
-
-  if (playerCurrentHp <= 0) { onPlayerDeath(); return; }
-
-  // Passive HP regen (5% per tick)
-  playerCurrentHp = Math.min(st.maxHp, playerCurrentHp + Math.floor(st.maxHp * 0.05));
-
-  updatePlayerBars();
-  updateMonsterUI();
+function combatTick(){
+  const st=getStats(), mon=G.combat.monster;
+  if(!mon){spawnMonster();return;}
+  SFX.attack(G.player.cls);
+  let dmg=Math.max(1,st.atk-mon.def+Math.floor(Math.random()*5)-2);
+  const isCrit=Math.random()<st.crit;
+  if(isCrit)dmg=Math.floor(dmg*1.8);
+  G.combat.monsterHp=Math.max(0,G.combat.monsterHp-dmg);
+  setPlayerAnim('attack'); setTimeout(()=>setPlayerAnim('idle'),400);
+  setMonsterAnim('hit');   setTimeout(()=>setMonsterAnim('idle'),300);
+  if(isCrit)SFX.crit();
+  spawnHitParticles(canvasMonX, 130, isCrit?'#fbbf24':'#ef4444');
+  logCombat(`${isCrit?"💥 CRITIQUE ! ":""}Tu infliges <strong>${dmg}</strong> dégâts à ${mon.name}.`,"hit-p");
+  if(G.combat.monsterHp<=0){killMonster(mon,st);return;}
+  let mDmg=Math.max(1,mon.atk-st.def+Math.floor(Math.random()*4)-1);
+  playerCurrentHp=Math.max(0,playerCurrentHp-mDmg);
+  SFX.hit();
+  setPlayerAnim('hit'); setTimeout(()=>setPlayerAnim('idle'),250);
+  spawnHitParticles(canvasPlayerX, 130, '#f87171');
+  logCombat(`${mon.name} t'inflige <strong>${mDmg}</strong> dégâts.`,"hit-m");
+  if(playerCurrentHp<=0){onPlayerDeath();return;}
+  playerCurrentHp=Math.min(st.maxHp,playerCurrentHp+Math.floor(st.maxHp*.05));
 }
 
-function killMonster(mon, st) {
-  animateMonster("dead");
-  const goldEarned = Math.floor((mon.gold + Math.floor(Math.random() * mon.gold * 0.3)) * st.goldMult);
-  const xpEarned   = Math.floor(mon.xp * st.xpMult);
-
-  G.player.gold += goldEarned;
-  G.stats.totalGold += goldEarned;
-  G.stats.totalKills++;
-
+function killMonster(mon,st){
+  SFX.monDie();
+  setMonsterAnim('dead');
+  const goldEarned=Math.floor((mon.gold+Math.floor(Math.random()*mon.gold*.3))*st.goldMult);
+  const xpEarned=Math.floor(mon.xp*st.xpMult);
+  G.player.gold+=goldEarned; G.stats.totalGold+=goldEarned; G.stats.totalKills++;
+  SFX.gold();
   addXP(xpEarned);
-  logCombat(`✅ ${mon.emoji} ${mon.name} vaincu ! +${goldEarned}🪙 +${xpEarned}XP`, "kill");
-  showNotif(`+${goldEarned}🪙`, "gold");
-
-  setTimeout(() => {
-    spawnMonster();
-    updateMonsterUI();
-  }, 300);
+  logCombat(`✅ ${mon.name} vaincu ! +${goldEarned}🪙 +${xpEarned}XP`,"kill");
+  showNotif(`+${goldEarned}🪙`,"gold");
+  setTimeout(()=>{spawnMonster();},500);
 }
 
-function onPlayerDeath() {
-  logCombat("💀 Tu es mort ! Récupération en 3 secondes...", "hit-m");
+function onPlayerDeath(){
+  SFX.playerDie();
+  logCombat("💀 Tu es mort ! Récupération...","hit-m");
   clearInterval(combatInterval);
-  playerCurrentHp = 0;
-  updatePlayerBars();
-  setTimeout(() => {
-    playerCurrentHp = getStats().maxHp;
-    spawnMonster();
-    scheduleCombat();
-    logCombat("🔄 Tu es de retour au combat !", "kill");
-  }, 3000);
+  setTimeout(()=>{
+    playerCurrentHp=getStats().maxHp;
+    spawnMonster(); scheduleCombat();
+    logCombat("🔄 Retour au combat !","kill");
+  },3000);
 }
 
-function addXP(amount) {
-  if (amount <= 0) return;
-  G.player.xp += amount;
-  G.stats.totalXp += amount;
-
-  while (G.player.xp >= xpNeeded(G.player.level)) {
-    G.player.xp -= xpNeeded(G.player.level);
+function addXP(amount){
+  if(amount<=0)return;
+  G.player.xp+=amount; G.stats.totalXp+=amount;
+  while(G.player.xp>=xpNeeded(G.player.level)){
+    G.player.xp-=xpNeeded(G.player.level);
     G.player.level++;
     onLevelUp();
   }
 }
 
-function onLevelUp() {
-  const lv = G.player.level;
-  G.player.baseHp  += 15 + lv * 2;
-  G.player.baseAtk += 2  + Math.floor(lv * 0.5);
-  G.player.baseDef += 1  + Math.floor(lv * 0.3);
-  playerCurrentHp = getStats().maxHp; // full heal on level up
-  logCombat(`⭐ NIVEAU ${lv} ! HP, ATK, DEF augmentés !`, "lvl");
-  showNotif(`⭐ Niveau ${lv} !`, "lvl");
-  renderZones(); // unlock new zones
-  renderPrestigeTab();
+function onLevelUp(){
+  const lv=G.player.level;
+  G.player.baseHp+=15+lv*2; G.player.baseAtk+=2+Math.floor(lv*.5); G.player.baseDef+=1+Math.floor(lv*.3);
+  playerCurrentHp=getStats().maxHp;
+  SFX.levelUp();
+  logCombat(`⭐ NIVEAU ${lv} ! Stats augmentées !`,"lvl");
+  showNotif(`⭐ Niveau ${lv} !`,"lvl");
+  renderZones(); renderPrestigeTab();
 }
 
-// ─── ZONE MANAGEMENT ─────────────────────────────────────────────
+// ══════════════════════════════════════════════
+//  CANVAS RENDER LOOP
+// ══════════════════════════════════════════════
+const canvas=document.getElementById("combat-canvas");
+const ctx2d=canvas.getContext("2d");
+let frameCount=0;
+const canvasPlayerX=120, canvasMonX=360, canvasGroundY=188;
+let bgCache=null, bgCacheZone=-1;
 
-function setZone(id) {
-  const zone = ZONES.find(z => z.id === id);
-  if (!zone || G.player.level < zone.unlockLv) return;
-  G.combat.zone = id;
-  spawnMonster();
-  renderZones();
-  document.getElementById("zone-label").textContent = zone.name;
-}
-
-// ─── SHOP LOGIC ──────────────────────────────────────────────────
-
-function buyWeapon(id) {
-  const item = WEAPONS.find(w => w.id === id);
-  if (!item) return;
-  if (G.player.purchased.weapons.includes(id)) {
-    // Equip
-    G.player.weapon = id;
-    showNotif(`⚔️ ${item.name} équipée !`, "good");
-  } else {
-    if (G.player.gold < item.price) { showNotif("Pas assez de gold !", "info"); return; }
-    G.player.gold -= item.price;
-    G.player.purchased.weapons.push(id);
-    G.player.weapon = id;
-    showNotif(`⚔️ ${item.name} achetée et équipée !`, "good");
+function renderCanvas(){
+  const W=canvas.width, H=canvas.height;
+  // Background (cached per zone)
+  if(bgCacheZone!==G.combat.zone){
+    const off=document.createElement("canvas"); off.width=W; off.height=H;
+    drawBackground(off.getContext("2d"),W,H,G.combat.zone);
+    bgCache=off; bgCacheZone=G.combat.zone;
   }
-  scheduleCombat(); // recalculate speed
-  renderShop();
-  updateSidebar();
-}
+  ctx2d.drawImage(bgCache,0,0);
 
-function buyArmor(id) {
-  const item = ARMORS.find(a => a.id === id);
-  if (!item) return;
-  if (G.player.purchased.armors.includes(id)) {
-    G.player.armor = id;
-    showNotif(`🛡️ ${item.name} équipée !`, "good");
-  } else {
-    if (G.player.gold < item.price) { showNotif("Pas assez de gold !", "info"); return; }
-    G.player.gold -= item.price;
-    G.player.purchased.armors.push(id);
-    G.player.armor = id;
-    showNotif(`🛡️ ${item.name} achetée et équipée !`, "good");
+  // Player animation
+  frameCount++;
+  const pState=anim.player.state; anim.player.frame++;
+  const mState=anim.monster.state; anim.monster.frame++;
+  const pBob  =pState==='idle'?Math.sin(frameCount*.04)*2:0;
+  const pAtkOff=pState==='attack'?Math.sin(Math.min(anim.player.frame,20)/20*Math.PI)*18:0;
+  const pHit  =pState==='hit';
+
+  // Draw player
+  const cd=CLASS_DEFS[G.player.cls]||CLASS_DEFS.warrior;
+  drawHuman(ctx2d, canvasPlayerX, canvasGroundY, {
+    skin:G.player.skin||SKIN_COLORS[1],
+    hair:G.player.hair||HAIR_COLORS[3],
+    hairStyle:G.player.hairStyle||0,
+    armor:cd.armorClr, acnt:cd.acnt, weap:cd.weap,
+    facing:1, bob:pBob, atkOff:pAtkOff, hitFlash:pHit,
+  });
+
+  // Player name + HP bar
+  const st=getStats();
+  ctx2d.fillStyle='rgba(0,0,0,.5)'; ctx2d.fillRect(canvasPlayerX-50,canvasGroundY+8,100,16); ctx2d.fillRect(canvasPlayerX-50,canvasGroundY+26,100,10);
+  ctx2d.fillStyle='#22c55e'; ctx2d.fillRect(canvasPlayerX-50,canvasGroundY+8,Math.max(0,(playerCurrentHp/st.maxHp)*100),16);
+  ctx2d.fillStyle='#fff'; ctx2d.font='bold 11px sans-serif'; ctx2d.textAlign='center';
+  ctx2d.fillText(G.player.name,canvasPlayerX,canvasGroundY+20);
+  ctx2d.fillStyle='#ef4444'; const hpW=Math.max(0,(playerCurrentHp/st.maxHp)*100);
+  ctx2d.fillRect(canvasPlayerX-50,canvasGroundY+26,hpW,10);
+
+  // Draw monster
+  const mon=G.combat.monster;
+  if(mon){
+    const mBob=mState==='idle'?-Math.sin(frameCount*.035)*2:0;
+    const mHit=mState==='hit';
+    const mAtkOff=mState==='attack'?-Math.sin(Math.min(anim.monster.frame,20)/20*Math.PI)*18:0;
+    ctx2d.save(); ctx2d.translate(mAtkOff,0);
+    drawMonster(ctx2d, canvasMonX, canvasGroundY, mon.name, mBob, mHit);
+    ctx2d.restore();
+    // Monster name + HP
+    const hpPct=G.combat.monsterHp/mon.hp;
+    ctx2d.fillStyle='rgba(0,0,0,.5)'; ctx2d.fillRect(canvasMonX-60,canvasGroundY+8,120,16); ctx2d.fillRect(canvasMonX-60,canvasGroundY+26,120,10);
+    ctx2d.fillStyle='#dc2626'; ctx2d.fillRect(canvasMonX-60,canvasGroundY+26,Math.max(0,hpPct*120),10);
+    ctx2d.fillStyle='#fff'; ctx2d.textAlign='center'; ctx2d.font='bold 11px sans-serif';
+    ctx2d.fillText(`${mon.name} [Lv${G.player.level}]`,canvasMonX,canvasGroundY+20);
   }
-  renderShop();
-  updateSidebar();
+
+  // Particles
+  updateParticles(ctx2d);
+  ctx2d.globalAlpha=1; ctx2d.textAlign='left';
+  requestAnimationFrame(renderCanvas);
 }
 
-function buyBoost(id) {
-  const boost = BOOSTS.find(b => b.id === id);
-  if (!boost) return;
-  if (G.player.gems < boost.price) { showNotif("Pas assez de gems ! 💎", "info"); return; }
-  G.player.gems -= boost.price;
-  // Remove existing if present, then add new
-  G.boosts = G.boosts.filter(b => b.id !== id);
-  G.boosts.push({ id, expiresAt: Date.now() + boost.duration * 1000 });
-  showNotif(`${boost.emoji} ${boost.name} activé pendant ${fmtDuration(boost.duration)} !`, "gem");
-  if (id === "b_speed") scheduleCombat();
-  renderShop();
-  renderBoosts();
-}
+// ══════════════════════════════════════════════
+//  CHARACTER CREATOR
+// ══════════════════════════════════════════════
+const creator = {
+  cls:'warrior', skin:SKIN_COLORS[1], hair:HAIR_COLORS[3], hairStyle:0,
 
-function buyPrestUpgrade(id) {
-  const pu = PRESTIGE_UPGRADES.find(u => u.id === id);
-  if (!pu) return;
-  const curLv = G.player.prestigeUpgrades[id] || 0;
-  if (curLv >= pu.maxLv) { showNotif("Déjà au maximum !", "info"); return; }
-  const cost = pu.costPer;
-  if (G.player.prestigePoints < cost) { showNotif("Pas assez de points de prestige !", "info"); return; }
-  G.player.prestigePoints -= cost;
-  G.player.prestigeUpgrades[id] = curLv + 1;
-  showNotif(`✨ ${pu.name} amélioré !`, "gem");
-  renderPrestigeTab();
-  updateSidebar();
-}
+  open(){
+    document.getElementById("creator-overlay").classList.add("open");
+    this.renderSwatches(); this.updatePreview();
+  },
+  close(){document.getElementById("creator-overlay").classList.remove("open");},
 
-// ─── PRESTIGE ────────────────────────────────────────────────────
+  renderSwatches(){
+    document.getElementById("skin-swatches").innerHTML=
+      SKIN_COLORS.map((c,i)=>`<div class="swatch${c===this.skin?' active':''}" style="background:${c}" onclick="creator.setSkin('${c}')"></div>`).join('');
+    document.getElementById("hair-swatches").innerHTML=
+      HAIR_COLORS.map((c,i)=>`<div class="swatch${c===this.hair?' active':''}" style="background:${c}" onclick="creator.setHair('${c}')"></div>`).join('');
+  },
 
-const PRESTIGE_REQUIRE_LEVEL = 50;
+  setSkin(c){this.skin=c;this.renderSwatches();this.updatePreview();},
+  setHair(c){this.hair=c;this.renderSwatches();this.updatePreview();},
+  setStyle(s){this.hairStyle=s;document.querySelectorAll('.style-btn').forEach(b=>b.classList.toggle('active',+b.dataset.style===s));this.updatePreview();},
+  setClass(c){
+    this.cls=c;
+    document.querySelectorAll('.class-btn').forEach(b=>b.classList.toggle('active',b.dataset.class===c));
+    document.getElementById('class-desc').textContent=CLASS_DEFS[c].desc;
+    this.updatePreview();
+  },
 
-function doPrestige() {
-  if (G.player.level < PRESTIGE_REQUIRE_LEVEL) {
-    showNotif(`Atteins le niveau ${PRESTIGE_REQUIRE_LEVEL} d'abord !`, "info");
-    return;
+  updatePreview(){
+    const pc=document.getElementById("preview-canvas");
+    const pctx=pc.getContext("2d");
+    pctx.clearRect(0,0,pc.width,pc.height);
+    // Dark background
+    pctx.fillStyle='#0a0e1a'; pctx.fillRect(0,0,pc.width,pc.height);
+    // Simple ground line
+    pctx.fillStyle='#1a2440'; pctx.fillRect(0,160,pc.width,pc.height);
+    pctx.fillStyle='#2a3550'; pctx.fillRect(0,160,pc.width,2);
+    const cd=CLASS_DEFS[this.cls];
+    drawHuman(pctx,80,160,{
+      skin:this.skin, hair:this.hair, hairStyle:this.hairStyle,
+      armor:cd.armorClr, acnt:cd.acnt, weap:cd.weap,
+      facing:1, bob:0, atkOff:0, hitFlash:false,
+    });
+    // Class label
+    pctx.fillStyle='#f5c842'; pctx.font='bold 12px sans-serif'; pctx.textAlign='center';
+    pctx.fillText(cd.label, 80, 185);
+    pctx.textAlign='left';
+  },
+
+  confirm(){
+    const nameEl=document.getElementById("creator-name");
+    const name=(nameEl.value||"Hero").trim().slice(0,16)||"Hero";
+    G.player.name=name; G.player.cls=this.cls;
+    G.player.skin=this.skin; G.player.hair=this.hair; G.player.hairStyle=this.hairStyle;
+    G.charCreated=true;
+    // Apply class starting bonuses
+    const cd=CLASS_DEFS[this.cls];
+    G.player.baseHp=Math.floor(100*cd.hpM);
+    G.player.baseAtk=Math.floor(10*cd.atkM);
+    G.player.baseDef=Math.floor(5*cd.defM);
+    playerCurrentHp=getStats().maxHp;
+    this.close(); save();
+    document.getElementById("player-name-display").textContent=name;
+    showNotif(`⚔️ ${name} commence l'aventure !`,"lvl");
+  },
+};
+window.creator=creator;
+
+// ══════════════════════════════════════════════
+//  SHOP LOGIC
+// ══════════════════════════════════════════════
+function buyWeapon(id){
+  const item=WEAPONS.find(w=>w.id===id); if(!item)return;
+  if(G.player.purchased.weapons.includes(id)){G.player.weapon=id;showNotif(`⚔️ ${item.name} équipée !`,"good");}
+  else{
+    if(G.player.gold<item.price){showNotif("Pas assez de gold !","info");return;}
+    G.player.gold-=item.price; SFX.buy();
+    G.player.purchased.weapons.push(id); G.player.weapon=id;
+    showNotif(`⚔️ ${item.name} achetée !`,"good");
   }
-  if (!confirm(`Prestige : retour au niveau 1 mais +5% bonus permanent sur toutes les stats ?\nPoints de prestige gagnés : 3`)) return;
+  scheduleCombat(); renderShop(); updateSidebar();
+}
+function buyArmor(id){
+  const item=ARMORS.find(a=>a.id===id); if(!item)return;
+  if(G.player.purchased.armors.includes(id)){G.player.armor=id;showNotif(`🛡️ ${item.name} équipée !`,"good");}
+  else{
+    if(G.player.gold<item.price){showNotif("Pas assez de gold !","info");return;}
+    G.player.gold-=item.price; SFX.buy();
+    G.player.purchased.armors.push(id); G.player.armor=id;
+    showNotif(`🛡️ ${item.name} achetée !`,"good");
+  }
+  renderShop(); updateSidebar();
+}
+function buyBoost(id){
+  const boost=BOOSTS.find(b=>b.id===id); if(!boost)return;
+  if(G.player.gems<boost.price){showNotif("Pas assez de gems ! 💎","info");return;}
+  G.player.gems-=boost.price; SFX.boost();
+  G.boosts=G.boosts.filter(b=>b.id!==id);
+  G.boosts.push({id,expiresAt:Date.now()+boost.duration*1000});
+  showNotif(`${boost.emoji} ${boost.name} activé !`,"gem");
+  if(id==="b_speed")scheduleCombat();
+  renderShop(); renderBoosts();
+}
+function buyPrestUpgrade(id){
+  const pu=PRESTIGE_UPGRADES.find(u=>u.id===id); if(!pu)return;
+  const curLv=G.player.prestigeUpgrades[id]||0;
+  if(curLv>=pu.maxLv){showNotif("Déjà au maximum !","info");return;}
+  if(G.player.prestigePoints<pu.costPer){showNotif("Pas assez de points prestige !","info");return;}
+  G.player.prestigePoints-=pu.costPer; G.player.prestigeUpgrades[id]=curLv+1;
+  SFX.buy(); showNotif(`✨ ${pu.name} amélioré !`,"gem");
+  renderPrestigeTab(); updateSidebar();
+}
+window.buyWeapon=buyWeapon; window.buyArmor=buyArmor; window.buyBoost=buyBoost; window.buyPrestUpgrade=buyPrestUpgrade;
 
-  G.player.prestigeCount++;
-  G.stats.totalPrestige++;
-  G.player.prestigePoints += 3;
-
-  const startLv = 1 + (G.player.prestigeUpgrades.pu_start || 0) * 4;
-
-  G.player.level   = startLv;
-  G.player.xp      = 0;
-  G.player.baseHp  = 100 + (startLv - 1) * 17;
-  G.player.baseAtk = 10  + (startLv - 1) * 2.5;
-  G.player.baseDef = 5   + (startLv - 1) * 1.3;
-  G.player.gold    = 0;
-  G.player.weapon  = "w0";
-  G.player.armor   = "a0";
-  G.player.purchased = { weapons:["w0"], armors:["a0"] };
-
-  playerCurrentHp = getStats().maxHp;
-  spawnMonster();
-  showNotif(`✨ Prestige ${G.player.prestigeCount} ! Bonus +${(G.player.prestigeCount * 5)}%`, "gem");
-  renderAll();
-  save();
+// ══════════════════════════════════════════════
+//  PRESTIGE
+// ══════════════════════════════════════════════
+const PRESTIGE_REQ_LV=50;
+function doPrestige(){
+  if(G.player.level<PRESTIGE_REQ_LV){showNotif(`Atteins le niveau ${PRESTIGE_REQ_LV} d'abord !`,"info");return;}
+  if(!confirm(`Prestige : retour au niveau 1 mais +5% bonus permanent ?\n+3 points de prestige gagnés.`))return;
+  G.player.prestigeCount++; G.stats.totalPrestige++; G.player.prestigePoints+=3;
+  const startLv=1+(G.player.prestigeUpgrades.pu_start||0)*4;
+  const cd=CLASS_DEFS[G.player.cls]||CLASS_DEFS.warrior;
+  G.player.level=startLv; G.player.xp=0;
+  G.player.baseHp=Math.floor((100+(startLv-1)*17)*cd.hpM);
+  G.player.baseAtk=Math.floor((10 +(startLv-1)*2.5)*cd.atkM);
+  G.player.baseDef=Math.floor((5  +(startLv-1)*1.3)*cd.defM);
+  G.player.gold=0; G.player.weapon="w0"; G.player.armor="a0";
+  G.player.purchased={weapons:["w0"],armors:["a0"]};
+  playerCurrentHp=getStats().maxHp;
+  SFX.prestige(); spawnMonster();
+  showNotif(`✨ Prestige ${G.player.prestigeCount} ! Bonus +${G.player.prestigeCount*5}%`,"gem");
+  renderAll(); save();
 }
 
-// ─── UI HELPERS ──────────────────────────────────────────────────
-
-function fmt(n) {
-  if (n >= 1e9) return (n/1e9).toFixed(1) + "B";
-  if (n >= 1e6) return (n/1e6).toFixed(1) + "M";
-  if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+// ══════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════
+function fmt(n){
+  if(n>=1e9)return(n/1e9).toFixed(1)+"B";
+  if(n>=1e6)return(n/1e6).toFixed(1)+"M";
+  if(n>=1e3)return(n/1e3).toFixed(1)+"K";
   return Math.floor(n).toString();
 }
-function fmtDuration(s) {
-  if (s >= 3600) return (s/3600).toFixed(1) + "h";
-  if (s >= 60)   return Math.floor(s/60) + "min";
-  return s + "s";
-}
-function fmtTime(ms) {
-  const s = Math.floor(ms / 1000);
-  return fmtDuration(s);
-}
+function fmtD(s){if(s>=3600)return(s/3600).toFixed(1)+"h";if(s>=60)return Math.floor(s/60)+"min";return s+"s";}
 
-let _logEntries = [];
-function logCombat(msg, cls) {
-  const el = document.getElementById("combat-log");
-  const div = document.createElement("div");
-  div.className = "log-entry " + (cls || "");
-  div.innerHTML = msg;
-  el.prepend(div);
-  // Limit log to 60 entries
-  while (el.children.length > 60) el.removeChild(el.lastChild);
+function logCombat(msg,cls){
+  const el=document.getElementById("combat-log");
+  const d=document.createElement("div"); d.className="log-entry "+(cls||""); d.innerHTML=msg;
+  el.prepend(d); while(el.children.length>60)el.removeChild(el.lastChild);
 }
-
-function showNotif(msg, type) {
-  const c = document.getElementById("notif-container");
-  const d = document.createElement("div");
-  d.className = "notif " + (type || "info");
-  d.textContent = msg;
+function showNotif(msg,type){
+  const c=document.getElementById("notif-container");
+  const d=document.createElement("div"); d.className="notif "+(type||"info"); d.textContent=msg;
   c.appendChild(d);
-  setTimeout(() => { d.style.opacity = "0"; d.style.transition = "opacity .4s"; setTimeout(() => d.remove(), 400); }, 2200);
+  setTimeout(()=>{d.style.opacity="0";d.style.transition="opacity .4s";setTimeout(()=>d.remove(),400);},2200);
 }
 
-function showDamageFloat(dmg, isPlayer, isCrit) {
-  const mon = document.getElementById("monster-sprite");
-  if (!mon) return;
-  const rect = mon.getBoundingClientRect();
-  const d = document.createElement("div");
-  d.className = "dmg-float " + (isPlayer ? (isCrit ? "crit" : "p") : "m");
-  d.textContent = (isPlayer ? "-" : "-") + dmg + (isCrit ? "!" : "");
-  d.style.left = (rect.left + rect.width / 2 + (Math.random() * 30 - 15)) + "px";
-  d.style.top  = (rect.top  + (Math.random() * 20)) + "px";
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), 850);
+// ══════════════════════════════════════════════
+//  UI RENDERERS
+// ══════════════════════════════════════════════
+function updatePlayerBars(){
+  const st=getStats();
+  const hpPct=Math.max(0,(playerCurrentHp/st.maxHp)*100);
+  const xpPct=(G.player.xp/xpNeeded(G.player.level))*100;
+  document.getElementById("hp-bar").style.width=hpPct+"%";
+  document.getElementById("xp-bar").style.width=xpPct+"%";
+  document.getElementById("hp-text").textContent=`${fmt(playerCurrentHp)}/${fmt(st.maxHp)}`;
+  document.getElementById("xp-text").textContent=`${fmt(G.player.xp)}/${fmt(xpNeeded(G.player.level))}`;
 }
-
-function animateMonster(cls) {
-  const el = document.getElementById("monster-sprite");
-  if (!el) return;
-  el.classList.remove("hit", "dead");
-  void el.offsetWidth;
-  el.classList.add(cls);
-}
-
-// ─── UI RENDER FUNCTIONS ─────────────────────────────────────────
-
-function updatePlayerBars() {
-  const st  = getStats();
-  const hpPct = Math.max(0, (playerCurrentHp / st.maxHp) * 100);
-  const xpPct = (G.player.xp / xpNeeded(G.player.level)) * 100;
-
-  document.getElementById("hp-bar").style.width  = hpPct + "%";
-  document.getElementById("xp-bar").style.width  = xpPct + "%";
-  document.getElementById("hp-text").textContent = `${fmt(playerCurrentHp)}/${fmt(st.maxHp)}`;
-  document.getElementById("xp-text").textContent = `${fmt(G.player.xp)}/${fmt(xpNeeded(G.player.level))}`;
-}
-
-function updateMonsterUI() {
-  const mon = G.combat.monster;
-  if (!mon) return;
-  const pct = (G.combat.monsterHp / mon.hp) * 100;
-  document.getElementById("monster-sprite").textContent = mon.emoji;
-  document.getElementById("monster-name").textContent   = mon.name;
-  document.getElementById("monster-level").textContent  = `Zone ${G.combat.zone} — Niveau ${G.player.level}`;
-  document.getElementById("mon-hp-bar").style.width     = pct + "%";
-  document.getElementById("mon-hp-text").textContent    = `${fmt(G.combat.monsterHp)}/${fmt(mon.hp)}`;
-}
-
-function updateSidebar() {
-  const st = getStats();
-  document.getElementById("s-level").textContent   = G.player.level;
-  document.getElementById("s-atk").textContent     = st.atk;
-  document.getElementById("s-def").textContent     = st.def;
-  document.getElementById("s-prestige").textContent= G.player.prestigeCount;
-  document.getElementById("hdr-gold").textContent  = fmt(G.player.gold);
-  document.getElementById("hdr-gems").textContent  = fmt(G.player.gems);
-
-  const wpn = WEAPONS.find(w => w.id === G.player.weapon) || WEAPONS[0];
-  const arm = ARMORS.find(a => a.id === G.player.armor)   || ARMORS[0];
-  document.getElementById("eq-weapon").textContent = wpn.emoji + " " + wpn.name;
-  document.getElementById("eq-armor").textContent  = arm.emoji + " " + arm.name;
-
+function updateSidebar(){
+  const st=getStats();
+  document.getElementById("s-level").textContent=G.player.level;
+  document.getElementById("s-atk").textContent=st.atk;
+  document.getElementById("s-def").textContent=st.def;
+  document.getElementById("s-prestige").textContent=G.player.prestigeCount;
+  document.getElementById("hdr-gold").textContent=fmt(G.player.gold);
+  document.getElementById("hdr-gems").textContent=fmt(G.player.gems);
+  document.getElementById("player-name-display").textContent=G.player.name;
+  const wpn=WEAPONS.find(w=>w.id===G.player.weapon)||WEAPONS[0];
+  const arm=ARMORS.find(a=>a.id===G.player.armor)||ARMORS[0];
+  document.getElementById("eq-weapon").textContent=wpn.emoji+" "+wpn.name;
+  document.getElementById("eq-armor").textContent=arm.emoji+" "+arm.name;
   renderBoosts();
 }
-
-function renderBoosts() {
-  const now = Date.now();
-  const active = G.boosts.filter(b => b.expiresAt > now);
-  const el = document.getElementById("boost-list");
-  if (!active.length) { el.textContent = "Aucun boost actif."; return; }
-  el.innerHTML = active.map(b => {
-    const info = BOOSTS.find(x => x.id === b.id);
-    const remaining = Math.floor((b.expiresAt - now) / 1000);
-    return `<div class="boost-badge">${info.emoji} ${info.name} <span style="color:var(--text-dim)">${fmtDuration(remaining)}</span></div>`;
+function renderBoosts(){
+  const now=Date.now(), active=G.boosts.filter(b=>b.expiresAt>now);
+  const el=document.getElementById("boost-list");
+  if(!active.length){el.textContent="Aucun boost actif.";return;}
+  el.innerHTML=active.map(b=>{
+    const info=BOOSTS.find(x=>x.id===b.id);
+    return `<div class="boost-badge">${info.emoji} ${info.name} <span style="color:var(--text-dim)">${fmtD(Math.floor((b.expiresAt-now)/1000))}</span></div>`;
   }).join("");
 }
-
-function renderZones() {
-  const el = document.getElementById("zone-select");
-  el.innerHTML = ZONES.map(z => {
-    const locked   = G.player.level < z.unlockLv;
-    const active   = G.combat.zone === z.id;
-    let cls = "zone-btn";
-    if (active) cls += " active";
-    if (locked) cls += " locked";
-    const label = locked ? `🔒 Zone ${z.id} (Lv${z.unlockLv})` : `Zone ${z.id}`;
-    return `<button class="${cls}" onclick="setZone(${z.id})" title="${z.name}">${label}</button>`;
+function renderZones(){
+  document.getElementById("zone-select").innerHTML=ZONES.map(z=>{
+    const locked=G.player.level<z.unlockLv, active=G.combat.zone===z.id;
+    return `<button class="zone-btn${active?' active':''}${locked?' locked':''}" onclick="setZone(${z.id})" title="${z.name}">
+      ${locked?`🔒 Z${z.id}(${z.unlockLv})`:`Zone ${z.id}`}</button>`;
   }).join("");
-
-  const cur = ZONES.find(z => z.id === G.combat.zone);
-  document.getElementById("zone-label").textContent = cur ? cur.name : "";
-
-  // Speed info
-  const st = getStats();
-  document.getElementById("speed-info").innerHTML =
-    `<span style="font-size:12px;color:var(--text-dim)">Vitesse de combat : <strong style="color:${st.speed>1?'var(--xp)':'var(--text)'}">${st.speed}×</strong></span>`;
+  const cur=ZONES.find(z=>z.id===G.combat.zone);
+  document.getElementById("zone-label").textContent=cur?cur.name:"";
+  const st=getStats();
+  document.getElementById("speed-info").innerHTML=`Vitesse : <strong style="color:${st.speed>1?'var(--xp)':'var(--text)'}">${st.speed.toFixed(1)}×</strong>`;
 }
+function setZone(id){
+  const z=ZONES.find(z=>z.id===id); if(!z||G.player.level<z.unlockLv)return;
+  G.combat.zone=id; spawnMonster(); renderZones();
+}
+window.setZone=setZone;
 
-function renderShop() {
-  // Weapons
-  document.getElementById("weapon-shop").innerHTML = WEAPONS.map(w => {
-    const owned    = G.player.purchased.weapons.includes(w.id);
-    const equipped = G.player.weapon === w.id;
-    const canBuy   = !owned && G.player.gold >= w.price;
-    let btnText = owned ? (equipped ? "Équipée ✓" : "Équiper") : `Acheter`;
-    let btnCls  = "item-btn" + (equipped ? " equipped-btn" : "");
-    return `<div class="item-card${equipped ? " equipped" : ""}">
-      <div class="item-icon">${w.emoji}</div>
-      <div class="item-name">${w.name}</div>
-      <div class="item-stats">⚔️ ATK <span>+${w.atk}</span>${w.def ? `  🛡️ DEF <span>+${w.def}</span>` : ""}</div>
-      ${w.price > 0 ? `<div class="item-price price-gold">🪙 ${fmt(w.price)}</div>` : `<div class="item-price" style="color:var(--xp)">Gratuite</div>`}
-      <button class="${btnCls}" onclick="buyWeapon('${w.id}')" ${!owned && !canBuy ? "disabled" : ""}>${btnText}</button>
-    </div>`;
+function renderShop(){
+  document.getElementById("weapon-shop").innerHTML=WEAPONS.map(w=>{
+    const owned=G.player.purchased.weapons.includes(w.id), eq=G.player.weapon===w.id, canBuy=!owned&&G.player.gold>=w.price;
+    return `<div class="item-card${eq?' equipped':''}">
+      <div class="item-icon">${w.emoji}</div><div class="item-name">${w.name}</div>
+      <div class="item-stats">⚔️ <span>+${w.atk}</span>${w.def?` 🛡️ <span>+${w.def}</span>`:""}</div>
+      ${w.price>0?`<div class="item-price price-gold">🪙 ${fmt(w.price)}</div>`:`<div class="item-price" style="color:var(--xp)">Gratuite</div>`}
+      <button class="item-btn${eq?' equipped-btn':''}" onclick="buyWeapon('${w.id}')" ${!owned&&!canBuy?"disabled":""}>
+        ${owned?(eq?"Équipée ✓":"Équiper"):"Acheter"}</button></div>`;
   }).join("");
-
-  // Armors
-  document.getElementById("armor-shop").innerHTML = ARMORS.map(a => {
-    const owned    = G.player.purchased.armors.includes(a.id);
-    const equipped = G.player.armor === a.id;
-    const canBuy   = !owned && G.player.gold >= a.price;
-    let btnText = owned ? (equipped ? "Équipée ✓" : "Équiper") : `Acheter`;
-    let btnCls  = "item-btn" + (equipped ? " equipped-btn" : "");
-    return `<div class="item-card${equipped ? " equipped" : ""}">
-      <div class="item-icon">${a.emoji}</div>
-      <div class="item-name">${a.name}</div>
-      <div class="item-stats">🛡️ DEF <span>+${a.def}</span>${a.atk ? `  ⚔️ ATK <span>+${a.atk}</span>` : ""}</div>
-      ${a.price > 0 ? `<div class="item-price price-gold">🪙 ${fmt(a.price)}</div>` : `<div class="item-price" style="color:var(--xp)">Gratuite</div>`}
-      <button class="${btnCls}" onclick="buyArmor('${a.id}')" ${!owned && !canBuy ? "disabled" : ""}>${btnText}</button>
-    </div>`;
+  document.getElementById("armor-shop").innerHTML=ARMORS.map(a=>{
+    const owned=G.player.purchased.armors.includes(a.id), eq=G.player.armor===a.id, canBuy=!owned&&G.player.gold>=a.price;
+    return `<div class="item-card${eq?' equipped':''}">
+      <div class="item-icon">${a.emoji}</div><div class="item-name">${a.name}</div>
+      <div class="item-stats">🛡️ <span>+${a.def}</span>${a.atk?` ⚔️ <span>+${a.atk}</span>`:""}</div>
+      ${a.price>0?`<div class="item-price price-gold">🪙 ${fmt(a.price)}</div>`:`<div class="item-price" style="color:var(--xp)">Gratuite</div>`}
+      <button class="item-btn${eq?' equipped-btn':''}" onclick="buyArmor('${a.id}')" ${!owned&&!canBuy?"disabled":""}>
+        ${owned?(eq?"Équipée ✓":"Équiper"):"Acheter"}</button></div>`;
   }).join("");
-
-  // Boosts
-  const now = Date.now();
-  document.getElementById("boost-shop").innerHTML = BOOSTS.map(b => {
-    const active = G.boosts.find(x => x.id === b.id && x.expiresAt > now);
-    const canBuy = G.player.gems >= b.price;
+  const now=Date.now();
+  document.getElementById("boost-shop").innerHTML=BOOSTS.map(b=>{
+    const active=G.boosts.find(x=>x.id===b.id&&x.expiresAt>now), canBuy=G.player.gems>=b.price;
     return `<div class="item-card gem-item">
-      <div class="item-icon">${b.emoji}</div>
-      <div class="item-name">${b.name}</div>
-      <div class="item-stats">${b.desc} — ${fmtDuration(b.duration)}</div>
-      ${active ? `<div class="boost-timer">Actif : ${fmtTime(active.expiresAt - now)}</div>` : ""}
+      <div class="item-icon">${b.emoji}</div><div class="item-name">${b.name}</div>
+      <div class="item-stats">${b.desc} — ${fmtD(b.duration)}</div>
+      ${active?`<div style="font-size:11px;color:var(--gem)">Actif: ${fmtD(Math.floor((active.expiresAt-now)/1000))}</div>`:""}
       <div class="item-price price-gem">💎 ${b.price}</div>
-      <button class="item-btn gem-btn" onclick="buyBoost('${b.id}')" ${!canBuy ? "disabled" : ""}>${active ? "Renouveler" : "Activer"}</button>
-    </div>`;
+      <button class="item-btn gem-btn" onclick="buyBoost('${b.id}')" ${!canBuy?"disabled":""}>${active?"Renouveler":"Activer"}</button></div>`;
   }).join("");
 }
-
-function renderPrestigeTab() {
-  const p  = G.player;
-  const totalBonus = p.prestigeCount * 5;
-
-  document.getElementById("p-count").textContent = p.prestigeCount;
-  document.getElementById("p-bonus").textContent = `+${totalBonus}% bonus global`;
-
-  // Requirements
-  const lvOk = p.level >= PRESTIGE_REQUIRE_LEVEL;
-  document.getElementById("p-reqs").innerHTML =
-    `<div>Niveau requis : <strong class="${lvOk ? "ok" : "fail"}">${p.level}/${PRESTIGE_REQUIRE_LEVEL}</strong> ${lvOk ? "✓" : "✗"}</div>
-     <div style="margin-top:6px;font-size:12px;color:var(--text-dim)">Points de prestige disponibles : <strong style="color:var(--gem)">${p.prestigePoints}</strong></div>`;
-
-  document.getElementById("prestige-btn").disabled = !lvOk;
-
-  // Upgrades
-  document.getElementById("prestige-upgrades").innerHTML = PRESTIGE_UPGRADES.map(pu => {
-    const curLv  = p.prestigeUpgrades[pu.id] || 0;
-    const maxed  = curLv >= pu.maxLv;
-    const canBuy = !maxed && p.prestigePoints >= pu.costPer;
-    return `<div class="upgrade-card${maxed ? " maxed" : ""}">
-      <div class="upgrade-title">${pu.name}</div>
-      <div class="upgrade-desc">${pu.desc}</div>
+function renderPrestigeTab(){
+  const p=G.player;
+  document.getElementById("p-count").textContent=p.prestigeCount;
+  document.getElementById("p-bonus").textContent=`+${p.prestigeCount*5}% bonus global`;
+  const lvOk=p.level>=PRESTIGE_REQ_LV;
+  document.getElementById("p-reqs").innerHTML=
+    `<div>Niveau requis : <strong class="${lvOk?'ok':'fail'}" style="color:${lvOk?'var(--xp)':'var(--hp)'}">${p.level}/${PRESTIGE_REQ_LV}</strong></div>
+     <div style="margin-top:4px;font-size:12px;color:var(--text-dim)">Points prestige : <strong style="color:var(--gem)">${p.prestigePoints}</strong></div>`;
+  document.getElementById("prestige-btn").disabled=!lvOk;
+  document.getElementById("prestige-upgrades").innerHTML=PRESTIGE_UPGRADES.map(pu=>{
+    const curLv=p.prestigeUpgrades[pu.id]||0, maxed=curLv>=pu.maxLv, canBuy=!maxed&&p.prestigePoints>=pu.costPer;
+    return `<div class="upgrade-card${maxed?' maxed':''}">
+      <div class="upgrade-title">${pu.name}</div><div class="upgrade-desc">${pu.desc}</div>
       <div class="upgrade-level">Niv ${curLv}/${pu.maxLv}</div>
-      ${!maxed ? `<div class="upgrade-cost">💎 ${pu.costPer} pts prestige</div>` : ""}
-      <button class="item-btn gem-btn" style="margin-top:4px" onclick="buyPrestUpgrade('${pu.id}')" ${!canBuy ? "disabled" : ""}>${maxed ? "MAX" : "Améliorer"}</button>
+      ${!maxed?`<div class="upgrade-cost">💎 ${pu.costPer} pts</div>`:""}
+      <button class="item-btn gem-btn" style="margin-top:4px" onclick="buyPrestUpgrade('${pu.id}')" ${!canBuy?"disabled":""}>${maxed?"MAX":"Améliorer"}</button>
     </div>`;
   }).join("");
 }
-
-function renderStatsTab() {
-  document.getElementById("stats-grid").innerHTML = [
-    { val: fmt(G.stats.totalKills), label: "Monstres tués",     cls: "kill-v" },
-    { val: fmt(G.stats.totalGold),  label: "Gold total gagné",  cls: "gold-v" },
-    { val: fmt(G.stats.totalXp),    label: "XP totale gagnée",  cls: "xp-v"   },
-    { val: fmt(G.stats.totalPrestige), label: "Total Prestige", cls: "gem-v"  },
-    { val: G.player.level,          label: "Niveau actuel",     cls: "gold-v" },
-    { val: fmt(G.player.gold),      label: "Gold actuel",       cls: "gold-v" },
-    { val: fmt(G.player.gems),      label: "Gems actuelles",    cls: "gem-v"  },
-    { val: ZONES.find(z=>z.id===G.combat.zone)?.name || "?", label: "Zone actuelle", cls: "kill-v" },
-  ].map(s => `<div class="stat-card">
-    <div class="stat-card-val ${s.cls}">${s.val}</div>
-    <div class="stat-card-label">${s.label}</div>
-  </div>`).join("");
+function renderStatsTab(){
+  document.getElementById("stats-grid").innerHTML=[
+    {val:fmt(G.stats.totalKills),label:"Monstres tués",    cls:"kill-v"},
+    {val:fmt(G.stats.totalGold), label:"Gold total",        cls:"gold-v"},
+    {val:fmt(G.stats.totalXp),   label:"XP totale",         cls:"xp-v"},
+    {val:G.stats.totalPrestige,  label:"Total Prestige",    cls:"gem-v"},
+    {val:G.player.level,         label:"Niveau actuel",     cls:"gold-v"},
+    {val:fmt(G.player.gold),     label:"Gold actuel",       cls:"gold-v"},
+    {val:fmt(G.player.gems),     label:"Gems actuelles",    cls:"gem-v"},
+    {val:CLASS_DEFS[G.player.cls]?.label||"?",label:"Classe",cls:"kill-v"},
+  ].map(s=>`<div class="stat-card"><div class="stat-card-val ${s.cls}">${s.val}</div><div class="stat-card-label">${s.label}</div></div>`).join("");
+}
+function renderAll(){
+  updatePlayerBars(); updateSidebar(); renderZones(); renderShop(); renderPrestigeTab();
 }
 
-function renderAll() {
-  updatePlayerBars();
-  updateMonsterUI();
-  updateSidebar();
-  renderZones();
-  renderShop();
-  renderPrestigeTab();
-  renderStatsTab();
-}
-
-// ─── TABS ────────────────────────────────────────────────────────
-
-document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const tab = btn.dataset.tab;
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+// ══════════════════════════════════════════════
+//  EVENT LISTENERS
+// ══════════════════════════════════════════════
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    SFX.init(); SFX.resume();
+    const tab=btn.dataset.tab;
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
     btn.classList.add("active");
-    document.getElementById("tab-" + tab).classList.add("active");
-    if (tab === "stats") renderStatsTab();
-    if (tab === "shop")  renderShop();
-    if (tab === "prestige") renderPrestigeTab();
+    document.getElementById("tab-"+tab).classList.add("active");
+    if(tab==="stats")renderStatsTab();
+    if(tab==="shop")renderShop();
+    if(tab==="prestige")renderPrestigeTab();
   });
 });
+document.querySelectorAll(".class-btn").forEach(b=>b.addEventListener("click",()=>{SFX.init();creator.setClass(b.dataset.class);}));
+document.querySelectorAll(".style-btn").forEach(b=>b.addEventListener("click",()=>creator.setStyle(+b.dataset.style)));
+document.getElementById("creator-start").addEventListener("click",()=>creator.confirm());
+document.getElementById("creator-name").addEventListener("input",()=>creator.updatePreview());
+document.getElementById("buy-gems-btn").addEventListener("click",()=>{
+  SFX.init(); SFX.resume();
+  const ok=confirm("💎 Acheter des Gems\n\n100 gems — 0.99€\n500 gems — 3.99€\n1200 gems — 8.99€\n3000 gems — 19.99€\n\n[DEMO] OK = +200 gems gratuits !");
+  if(ok){G.player.gems+=200;showNotif("💎 +200 Gems !","gem");updateSidebar();renderShop();save();}
+});
+document.getElementById("save-btn").addEventListener("click",()=>{save();showNotif("💾 Sauvegardé !","good");});
+document.getElementById("reset-btn").addEventListener("click",()=>{
+  if(prompt('Tape "RESET" pour confirmer :')!=="RESET")return;
+  localStorage.removeItem("idlerpg_v3");localStorage.removeItem("idlerpg_v2");
+  G=defaultState(); playerCurrentHp=getStats().maxHp;
+  clearInterval(combatInterval); startCombat(); renderAll();
+  creator.open(); showNotif("🗑️ Sauvegarde effacée.","info");
+});
+document.getElementById("change-char-btn").addEventListener("click",()=>{
+  SFX.init(); creator.cls=G.player.cls; creator.skin=G.player.skin||SKIN_COLORS[1];
+  creator.hair=G.player.hair||HAIR_COLORS[3]; creator.hairStyle=G.player.hairStyle||0;
+  creator.open(); creator.updatePreview(); creator.renderSwatches();
+});
+document.getElementById("prestige-btn").addEventListener("click",doPrestige);
 
-// ─── PURCHASE GEMS (simulated) ───────────────────────────────────
-
-document.getElementById("buy-gems-btn").addEventListener("click", () => {
-  const choice = confirm(
-    "💎 Acheter des Gems\n\n" +
-    "100 gems  — 0.99€\n" +
-    "500 gems  — 3.99€\n" +
-    "1200 gems — 8.99€\n" +
-    "3000 gems — 19.99€\n\n" +
-    "[DEMO] Cliquer OK pour recevoir 200 gems gratuitement !"
-  );
-  if (choice) {
-    G.player.gems += 200;
-    showNotif("💎 +200 Gems reçus !", "gem");
-    updateSidebar();
-    renderShop();
-    save();
-  }
+// Keyboard shortcut: mute
+let muted=false;
+document.addEventListener("keydown",e=>{
+  if(e.key==="m"||e.key==="M"){muted=!muted;showNotif(muted?"🔇 Son coupé":"🔊 Son activé","info");}
 });
 
-// ─── SAVE / RESET BUTTONS ────────────────────────────────────────
-
-document.getElementById("save-btn").addEventListener("click", () => {
-  save(); showNotif("💾 Sauvegardé !", "good");
-});
-
-document.getElementById("reset-btn").addEventListener("click", () => {
-  if (prompt('Tape "RESET" pour confirmer la suppression complète de ta sauvegarde :') === "RESET") {
-    localStorage.removeItem("idlerpg_v2");
-    G = defaultState();
-    playerCurrentHp = getStats().maxHp;
-    clearInterval(combatInterval);
-    startCombat();
-    renderAll();
-    showNotif("🗑️ Sauvegarde effacée.", "info");
-  }
-});
-
-// ─── PRESTIGE BUTTON ─────────────────────────────────────────────
-
-document.getElementById("prestige-btn").addEventListener("click", doPrestige);
-
-// ─── TICK LOOP (UI updates + save) ───────────────────────────────
-
-let _tick = 0;
-setInterval(() => {
+// ══════════════════════════════════════════════
+//  TICK LOOP
+// ══════════════════════════════════════════════
+let _tick=0;
+setInterval(()=>{
   _tick++;
-  updatePlayerBars();
-  updateSidebar(); // currency update
-
-  // Refresh shop prices (disable/enable buttons as gold changes)
-  if (_tick % 3 === 0) {
-    const activeTab = document.querySelector(".tab-pane.active")?.id;
-    if (activeTab === "tab-shop")    renderShop();
-    if (activeTab === "tab-stats")   renderStatsTab();
-    if (activeTab === "tab-prestige") renderPrestigeTab();
+  updatePlayerBars(); updateSidebar();
+  if(_tick%3===0){
+    const at=document.querySelector(".tab-pane.active")?.id;
+    if(at==="tab-shop")renderShop();
+    if(at==="tab-stats")renderStatsTab();
+    if(at==="tab-prestige")renderPrestigeTab();
   }
+  const before=G.boosts.filter(b=>b.expiresAt>Date.now()).length;
+  G.boosts=G.boosts.filter(b=>b.expiresAt>Date.now()+500);
+  if(before!==G.boosts.filter(b=>b.expiresAt>Date.now()).length){scheduleCombat();renderBoosts();}
+  if(_tick%30===0)save();
+},1000);
 
-  // Boost expiry check & reschedule speed if needed
-  const prevBoosts = G.boosts.filter(b => b.expiresAt > Date.now()).length;
-  G.boosts = G.boosts.filter(b => b.expiresAt > Date.now() + 500);
-  const curBoosts = G.boosts.filter(b => b.expiresAt > Date.now()).length;
-  if (prevBoosts !== curBoosts) { scheduleCombat(); renderBoosts(); }
-
-  // Auto-save every 30s
-  if (_tick % 30 === 0) save();
-}, 1000);
-
-// ─── INIT ────────────────────────────────────────────────────────
-
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
 load();
-playerCurrentHp = getStats().maxHp;
-
-// Register global functions for inline onclick
-window.setZone          = setZone;
-window.buyWeapon        = buyWeapon;
-window.buyArmor         = buyArmor;
-window.buyBoost         = buyBoost;
-window.buyPrestUpgrade  = buyPrestUpgrade;
-
+if(!G.player.skin)G.player.skin=SKIN_COLORS[1];
+if(!G.player.hair)G.player.hair=HAIR_COLORS[3];
+if(G.player.hairStyle===undefined)G.player.hairStyle=0;
+if(!G.player.cls)G.player.cls='warrior';
+playerCurrentHp=getStats().maxHp;
 renderAll();
 startCombat();
-logCombat("🎮 Bienvenue dans Idle Quest RPG !", "kill");
-logCombat("⚔️ Le combat automatique a commencé !", "lvl");
-
-// Check offline rewards (after a brief delay for UI to render)
-setTimeout(checkOfflineRewards, 800);
+requestAnimationFrame(renderCanvas);
+logCombat("🎮 Bienvenue dans Idle Quest RPG !","kill");
+logCombat("⚔️ Combat automatique démarré !","lvl");
+setTimeout(()=>{
+  if(!G.charCreated){
+    creator.open();
+  } else {
+    checkOfflineRewards();
+  }
+},600);
 </script>
 </body>
 </html>
