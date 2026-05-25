@@ -38,6 +38,24 @@ let W=0,H=0;
 function resize(){canvas.width=W=window.innerWidth;canvas.height=H=window.innerHeight;}
 window.addEventListener('resize',resize);resize();
 
+// ===================== SPRITES =====================
+const SPRITES={};
+(function(){
+  const imgs={knight:'knight.png'};
+  for(const[k,src] of Object.entries(imgs)){
+    const img=new Image();
+    img.onload=()=>{SPRITES[k]=img;};
+    img.src=src;
+  }
+})();
+const KNIGHT_ANIM={
+  idle: {row:0,frames:4,fw:32,fh:32},
+  run:  {row:1,frames:8,fw:32,fh:32},
+  roll: {row:2,frames:8,fw:32,fh:32},
+  hit:  {row:3,frames:4,fw:32,fh:32},
+  death:{row:4,frames:4,fw:32,fh:32},
+};
+
 // ===================== TILE CONSTANTS =====================
 const TILE=48;
 const MW=60,MH=60;
@@ -487,114 +505,31 @@ function drawPlayer(ctx,px,py,dir,animF){
 // ===================== COMBAT SPRITES =====================
 function drawPlayerBattle(ctx,x,y,w,h,hitFlash){
   ctx.save();
-  const s=Math.min(w/110,h/160);
-  const cx=x+w/2, gnd=y+h*0.92;
-  ctx.translate(cx,gnd);ctx.scale(s,s);
-
-  // Shadow
-  ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.beginPath();ctx.ellipse(0,2,30,10,0,0,Math.PI*2);ctx.fill();
-
-  // Back leg (slightly behind)
-  ctx.beginPath();ctx.moveTo(-8,0);ctx.bezierCurveTo(-10,-20,-14,-50,-12,-80);ctx.lineTo(-4,-80);ctx.bezierCurveTo(-6,-50,-2,-20,0,0);ctx.closePath();
-  ctx.fillStyle='#1a1535';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2;ctx.stroke();
-  ctx.beginPath();ctx.ellipse(-8,2,8,5,-.2,0,Math.PI*2);ctx.fillStyle='#c9a227';ctx.fill();ctx.strokeStyle='#7a5a10';ctx.lineWidth=1.5;ctx.stroke();
-
-  // Front leg
-  ctx.beginPath();ctx.moveTo(4,0);ctx.bezierCurveTo(8,-20,12,-50,10,-80);ctx.lineTo(18,-80);ctx.bezierCurveTo(20,-50,16,-20,12,0);ctx.closePath();
-  ctx.fillStyle='#221d45';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2;ctx.stroke();
-  ctx.beginPath();ctx.ellipse(8,2,8,5,.2,0,Math.PI*2);ctx.fillStyle='#c9a227';ctx.fill();ctx.strokeStyle='#7a5a10';ctx.lineWidth=1.5;ctx.stroke();
-
-  // Cape flowing behind
-  ctx.beginPath();
-  ctx.moveTo(-20,-85);ctx.bezierCurveTo(-35,-60,-38,-20,-32,5);
-  ctx.lineTo(-20,5);ctx.bezierCurveTo(-24,-20,-22,-55,-12,-80);ctx.closePath();
-  ctx.fillStyle='#100d25';ctx.fill();ctx.strokeStyle='#06040e';ctx.lineWidth=1.5;ctx.stroke();
-  // Cape highlight
-  ctx.beginPath();ctx.moveTo(-22,-85);ctx.bezierCurveTo(-30,-60,-32,-20,-26,5);ctx.lineTo(-24,5);ctx.bezierCurveTo(-30,-20,-28,-55,-18,-82);ctx.closePath();
-  ctx.fillStyle='#1a1635';ctx.fill();
-
-  // Body torso
-  ctx.beginPath();
-  ctx.moveTo(-22,-80);ctx.lineTo(20,-80);ctx.bezierCurveTo(24,-80,26,-76,26,-70);
-  ctx.lineTo(24,-40);ctx.bezierCurveTo(24,-35,20,-30,14,-30);
-  ctx.lineTo(-16,-30);ctx.bezierCurveTo(-22,-30,-24,-35,-24,-40);
-  ctx.lineTo(-24,-70);ctx.bezierCurveTo(-24,-76,-26,-80,-22,-80);ctx.closePath();
-  ctx.fillStyle='#26205a';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2.5;ctx.stroke();
-  // Chest plate
-  ctx.beginPath();ctx.moveTo(-14,-78);ctx.lineTo(14,-78);ctx.lineTo(14,-38);ctx.bezierCurveTo(14,-34,10,-32,6,-32);ctx.lineTo(-6,-32);ctx.bezierCurveTo(-10,-32,-14,-34,-14,-38);ctx.closePath();
-  ctx.fillStyle='#38308a';ctx.fill();
-  // Gold chest cross
-  ctx.strokeStyle='#c9a227';ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(-14,-65);ctx.lineTo(14,-65);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(0,-80);ctx.lineTo(0,-30);ctx.stroke();
-  // Center gem
-  ctx.beginPath();ctx.arc(0,-57,5,0,Math.PI*2);
-  ctx.fillStyle='#6040c0';ctx.fill();ctx.strokeStyle='#c9a227';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='rgba(180,160,255,0.6)';ctx.beginPath();ctx.arc(-1.5,-58.5,2,0,Math.PI*2);ctx.fill();
-
-  // Pauldrons (shoulders)
-  for(const[sx,hw] of[[-24,-80],[20,-80]]){
-    ctx.beginPath();ctx.arc(sx+4*(sx<0?1:-1),-80,10,0,Math.PI*2);
-    ctx.fillStyle='#26205a';ctx.fill();ctx.strokeStyle='#c9a227';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.beginPath();ctx.arc(sx+4*(sx<0?1:-1),-80,6,0,Math.PI*2);
-    ctx.fillStyle='#38308a';ctx.fill();
+  if(SPRITES.knight){
+    const t=Date.now()/1000;
+    const anim=hitFlash?KNIGHT_ANIM.hit:KNIGHT_ANIM.idle;
+    const fps=hitFlash?10:6;
+    const frame=Math.floor(t*fps)%anim.frames;
+    const sx=frame*anim.fw;
+    const sy=anim.row*anim.fh;
+    const scale=Math.min(w/anim.fw,h/anim.fh);
+    const dw=anim.fw*scale, dh=anim.fh*scale;
+    const dx=x+(w-dw)/2, dy=y+(h-dh)/2;
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,0.25)';
+    ctx.beginPath();ctx.ellipse(x+w/2,y+h*0.97,dw*0.35,dw*0.1,0,0,Math.PI*2);ctx.fill();
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(SPRITES.knight,sx,sy,anim.fw,anim.fh,dx,dy,dw,dh);
+    if(hitFlash){
+      ctx.globalAlpha=0.45;ctx.fillStyle='#fff';
+      ctx.fillRect(dx,dy,dw,dh);ctx.globalAlpha=1;
+    }
+  } else {
+    // Fallback: simple placeholder rectangle
+    ctx.fillStyle='#26205a';ctx.fillRect(x,y,w,h);
+    ctx.fillStyle='#c9a227';ctx.font='12px Georgia';ctx.textAlign='center';
+    ctx.fillText('Chevalier',x+w/2,y+h/2);
   }
-
-  // Sword arm (right side, extended)
-  ctx.beginPath();ctx.moveTo(20,-78);ctx.bezierCurveTo(30,-78,36,-72,36,-65);
-  ctx.lineTo(36,-42);ctx.bezierCurveTo(36,-38,32,-35,28,-36);
-  ctx.lineTo(22,-38);ctx.bezierCurveTo(18,-38,16,-42,16,-46);ctx.lineTo(18,-68);ctx.closePath();
-  ctx.fillStyle='#26205a';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2;ctx.stroke();
-
-  // SWORD
-  // Blade
-  ctx.beginPath();ctx.moveTo(42,-140);ctx.lineTo(46,-140);ctx.lineTo(50,-50);ctx.lineTo(38,-50);ctx.closePath();
-  ctx.fillStyle='#c8c8d8';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2;ctx.stroke();
-  // Blade highlight
-  ctx.beginPath();ctx.moveTo(42,-140);ctx.lineTo(44,-140);ctx.lineTo(47,-50);ctx.lineTo(42,-50);ctx.closePath();
-  ctx.fillStyle='#e8e8f4';ctx.fill();
-  // Guard
-  ctx.beginPath();ctx.moveTo(28,-52);ctx.lineTo(62,-52);ctx.lineTo(62,-46);ctx.lineTo(28,-46);ctx.closePath();
-  ctx.fillStyle='#c9a227';ctx.fill();ctx.strokeStyle='#7a5a10';ctx.lineWidth=1.5;ctx.stroke();
-  // Handle
-  ctx.beginPath();ctx.moveTo(41,-46);ctx.lineTo(47,-46);ctx.lineTo(47,-30);ctx.lineTo(41,-30);ctx.closePath();
-  ctx.fillStyle='#5a3a1a';ctx.fill();ctx.strokeStyle='#3a2010';ctx.lineWidth=1.5;ctx.stroke();
-  // Pommel
-  ctx.beginPath();ctx.arc(44,-28,6,0,Math.PI*2);
-  ctx.fillStyle='#c9a227';ctx.fill();ctx.strokeStyle='#7a5a10';ctx.lineWidth=1.5;ctx.stroke();
-
-  // Head
-  ctx.beginPath();ctx.arc(0,-100,22,0,Math.PI*2);
-  ctx.fillStyle='#c4916a';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2.5;ctx.stroke();
-  // Skin highlight
-  ctx.beginPath();ctx.arc(-5,-106,10,0,Math.PI*2);ctx.fillStyle='rgba(220,160,120,0.4)';ctx.fill();
-
-  // Helmet
-  ctx.beginPath();
-  ctx.moveTo(-23,-100);ctx.bezierCurveTo(-24,-122,-18,-138,0,-140);ctx.bezierCurveTo(18,-138,24,-122,23,-100);ctx.closePath();
-  ctx.fillStyle='#26205a';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=2.5;ctx.stroke();
-  // Helmet band
-  ctx.strokeStyle='#c9a227';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(0,-110,23,Math.PI*0.85,Math.PI*0.15,true);ctx.stroke();
-  // Cheek guards
-  for(const sx of[-1,1]){
-    ctx.beginPath();ctx.moveTo(sx*23,-100);ctx.bezierCurveTo(sx*26,-100,sx*28,-110,sx*25,-116);ctx.lineTo(sx*20,-115);ctx.bezierCurveTo(sx*22,-110,sx*20,-105,sx*22,-100);ctx.closePath();
-    ctx.fillStyle='#26205a';ctx.fill();ctx.strokeStyle='#08060f';ctx.lineWidth=1.5;ctx.stroke();
-  }
-  // Visor slits (glowing eyes)
-  ctx.fillStyle='#ffee66';
-  ctx.beginPath();ctx.ellipse(-7,-102,5,2.5,.15,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(7,-102,5,2.5,-.15,0,Math.PI*2);ctx.fill();
-  // Eye glow
-  ctx.fillStyle='rgba(255,230,100,0.35)';
-  ctx.beginPath();ctx.ellipse(-7,-102,8,5,.15,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(7,-102,8,5,-.15,0,Math.PI*2);ctx.fill();
-  // Helmet crest
-  ctx.beginPath();ctx.moveTo(-3,-140);ctx.lineTo(3,-140);ctx.bezierCurveTo(4,-155,2,-165,0,-168);ctx.bezierCurveTo(-2,-165,-4,-155,-3,-140);ctx.closePath();
-  ctx.fillStyle='#c9a227';ctx.fill();ctx.strokeStyle='#7a5a10';ctx.lineWidth=1.5;ctx.stroke();
-
-  if(hitFlash){ctx.globalAlpha=0.55;ctx.fillStyle='#fff';ctx.fillRect(-60,-170,120,180);ctx.globalAlpha=1;}
   ctx.restore();
 }
 
